@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicciones de Ventas</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .header, .footer {
+            background-color: #343a40;
+            color: #f8f9fa;
+            padding: 10px;
+            text-align: center;
+        }
+        .header {
+            flex: 0 0 auto;
+        }
+        .footer {
+            flex: 0 0 auto;
+        }
+        .content {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .table-container {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            margin: 20px auto;
+            max-width: 1400px;
+            width: auto;
+            position: relative; /* Importante para el funcionamiento de los encabezados fijos */
+        }
+        .table-container table {
+            width: 100%;
+            table-layout: fixed; /* Fijamos el ancho de la tabla */
+        }
+        .table {
+            margin-bottom: 0; /* Ajuste para evitar desbordamientos innecesarios */
+        }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #343a40;
+            color: #f8f9fa;
+            z-index: 1;
+        }
+        .table tbody tr {
+            transition: background-color .3s;
+        }
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        .table thead th, .table tbody td {
+            white-space: nowrap;
+            padding: 8px; /* Ajuste de espaciado para una apariencia más compacta */
+            text-align: center; /* Alineación centralizada para los encabezados */
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px 0;
+        }
+        .btn-guardar {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-volver {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h3>Predicciones de Ventas</h3>
+    </div>
+
+    <div class="content">
+        <div class="table-container">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Color</th>
+                        <th>Material</th>
+                        <th>Agregado</th>
+                        <th>Cant.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prediccion in predicciones %}
+                    <tr>
+                        <td>{{ prediccion.ID }}</td>
+                        <td>{{ prediccion.Tipo }}</td>
+                        <td>{{ prediccion.Color }}</td>
+                        <td>{{ prediccion.Material }}</td>
+                        <td>{{ prediccion.Agregado }}</td>
+                        <td>{{ prediccion.Cantidad }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-container">
+            <button class="btn btn-guardar" onclick="guardarPredicciones()">Guardar como PDF</button>
+            <a href="{{ url_for('datos') }}" class="btn btn-volver">Ver Datos</a>
+            <a href="{{ url_for('registro_venta') }}" class="btn btn-volver">Volver al Registro</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 - Registro de Ventas</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        function guardarPredicciones() {
+            const predicciones = {{ predicciones | tojson }};
+            fetch("{{ url_for('guardar_predicciones') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ predicciones })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'predicciones.pdf';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

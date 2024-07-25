@@ -1,0 +1,16 @@
+ID,Tipo,Color,Material,Agregado,Cantidad,Precio Unitario,Precio Total,Fecha
+1,Silla giratoria,Rojo,Metal,Con brazos,2,150.00,300.00,2024-06-30
+2,Catre de internación,Rojo,Metal,Con barillas,1,2650.00,2650.00,2024-06-30
+3,Camilla tipo escritorio,Gris,Metal,Con espaldar movible,3,2750.00,8250.00,2024-06-30
+4,Taburete médico,Blanco,Metal,Con ruedas,2,630.00,1260.00,2024-06-30
+5,Mesa de trabajo,Negro,Metal,Sin cajones,4,1200.00,4800.00,2024-06-30
+6,Vitrina para farmacia,Blanco,Melamina,Con iluminación,1,1800.00,1800.00,2024-06-30
+7,Estante para farmacia de dos cuerpos,Blanco,Melamina,De pie,2,750.00,1500.00,2024-06-30
+8,Gabinete de dos cuerpos,Blanco,Melamina,Con espejo,1,1100.00,1100.00,2024-06-30
+9,Gradilla de 2 peldaños,Negro,Metal,Sin agregado,3,450.00,1350.00,2024-06-30
+10,Biombo,Azul,Melamina,Sin agregado,1,450.00,450.00,2024-06-30
+11,Lámpara de cuello ganzo,Blanco,Metal,Sin agregado,2,320.00,640.00,2024-06-30
+12,Casillero de 6 puertas,Gris,Metal,Sin agregado,1,1250.00,1250.00,2024-06-30
+13,Estanteria tipo vitrin,Rojo,Metal,Sin agregado,2,850.00,1700.00,2024-06-30
+14,Escritorio secretarial de cuatro cajas con chapa clave,Negro,Melamina,Con ruedas,1,1650.00,1650.00,2024-06-30
+15,Silla estática,Azul,Metal,Sin brazos,4,180.00,720.00,2024-06-30

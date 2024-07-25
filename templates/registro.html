@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Ventas</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+</head>
+<body>
+    <div class="header fixed-top">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-12 text-center py-2">
+                    <h3>Registro de Ventas</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="flash-message" class="flash-message">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="content-container">
+        <div class="container">
+            <form id="ventas-form" action="{{ url_for('registro') }}" method="post">
+                <input type="hidden" name="num_ventas" id="num_ventas" value="1">
+                <div id="ventas-container">
+                    <div id="venta_0">
+                        <h5>Venta</h5>
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <label for="tipo_0">Tipo</label>
+                                <select class="form-control" id="tipo_0" name="tipo_0" onchange="updateAgregado(this, 0)">
+                                    <option value="">Seleccionar</option>
+                                    {% for tipo in tipos %}
+                                        <option value="{{ tipo }}">{{ tipo }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="color_0">Color</label>
+                                <select class="form-control" id="color_0" name="color_0">
+                                    <option value="">Seleccionar</option>
+                                    {% for color in colores %}
+                                        <option value="{{ color }}">{{ color }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="material_0">Material</label>
+                                <select class="form-control" id="material_0" name="material_0">
+                                    <option value="">Seleccionar</option>
+                                    {% for material in materiales %}
+                                        <option value="{{ material }}">{{ material }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="agregado_0">Agregado</label>
+                                <select class="form-control" id="agregado_0" name="agregado_0">
+                                    <option value="">Seleccionar</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cantidad_0">Cantidad</label>
+                                <input type="number" class="form-control" id="cantidad_0" name="cantidad_0" min="1" max="10">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="precio_0">Precio Unitario</label>
+                                <input type="text" class="form-control" id="precio_0" name="precio_0">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="fecha_0">Fecha</label>
+                                <input type="date" class="form-control" id="fecha_0" name="fecha_0" value="{{ fecha_hoy }}">
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <button type="submit" class="btn btn-primary">Registrar Venta</button>
+                </div>
+            </form>
+            <div class="mt-3 text-center">
+                <a href="{{ url_for('prediccion') }}" class="btn btn-warning">Predecir para el Día Siguiente</a>
+            </div>
+            <div class="mt-3 text-center">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#fechaModal">Predecir para una Fecha Futura</button>
+            </div>
+            <div class="mt-3 text-center">
+                <a href="{{ url_for('datos') }}" class="btn btn-secondary">Ver Datos</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para seleccionar fecha futura -->
+    <div class="modal fade" id="fechaModal" tabindex="-1" aria-labelledby="fechaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fechaModalLabel">Seleccionar Fecha Futura</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control datepicker" id="fechaFuturaInput" placeholder="Seleccione una fecha">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="submitFechaFutura()">Predecir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer fixed-bottom">
+        <p>&copy; 2024 - Registro de Ventas</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+
+        // Corregido para asegurarse de que la cadena JSON no sea escapada
+        const agregadosPorTipo = {{ agregados_por_tipo|tojson|safe }};
+        
+        function updateAgregado(select, index) {
+            const agregadoSelect = document.getElementById(`agregado_${index}`);
+            const tipo = select.value.split(' ')[0];  
+            const agregados = agregadosPorTipo[tipo] || [];
+            
+            agregados.unshift('Sin agregado'); // Asegura que siempre haya una opción 'Sin agregado'
+    
+            agregadoSelect.innerHTML = '<option value="">Seleccionar</option>';
+    
+            agregados.forEach(agregado => {
+                const option = document.createElement('option');
+                option.value = agregado;
+                option.textContent = agregado;
+                agregadoSelect.appendChild(option);
+            });
+        }
+    
+        function submitFechaFutura() {
+            const fechaFutura = document.getElementById('fechaFuturaInput').value;
+            if (fechaFutura) {
+                window.location.href = "{{ url_for('prediccion_futuro') }}" + "?fecha=" + fechaFutura;
+            }
+        }
+    </script>
+    
+</body>
+</html>

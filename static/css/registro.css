@@ -1,0 +1,114 @@
+body {
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    padding-top: 80px; /* Espacio para el header fijo */
+    padding-bottom: 60px; /* Espacio para el footer fijo */
+}
+
+.header, .footer {
+    background-color: #343a40; /* Gris oscuro para cabecera y pie */
+    color: #f8f9fa; /* Texto blanco */
+    padding: 8px 0;
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+}
+
+.header {
+    top: 0;
+}
+
+.footer {
+    bottom: 0;
+}
+
+.content-container {
+    max-width: 1200px;
+    margin: auto;
+    padding-top: 120px; /* Ajuste para evitar superposición con el encabezado */
+}
+
+.card {
+    margin-top: 20px;
+    border-radius: 15px;
+    transition: transform .2s;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.btn-custom {
+    background-color: #dc3545; /* Botón rojo */
+    color: white;
+}
+
+.form-select, .form-control {
+    border-radius: 10px;
+}
+
+h2 {
+    color: #0275d8;
+}
+
+.card-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.image-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.image-container-small {
+    height: 150px;
+    background-color: #e6ecee;
+}
+
+.image-container-large {
+    height: 300px;
+    background-color: #e6ecee;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ajustar imagen manteniendo la proporción */
+}
+
+.flash-message {
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    padding: 10px 20px;
+    background-color: #007bff; /* Celeste */
+    color: #ff0000; /* Negro para el texto */
+    border-radius: 5px;
+    border: 2px solid #ff0000; /* Borde blanco */
+    font-weight: bold;
+    display: none;
+}
+
+.btn-back {
+    background-color: #6c757d; /* Gris para el botón de volver */
+    color: white;
+}
+
+/* Estilo específico para el calendario fijo */
+.datepicker-dropdown {
+    position: absolute !important;
+    z-index: 1051 !important;
+}

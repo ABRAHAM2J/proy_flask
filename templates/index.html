@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+    <link rel="stylesheet" href="datos.css"> <!-- Archivo CSS local -->
+    <style>
+        /* Estilos CSS adicionales para la página */
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 100% del viewport height */
+            margin: 0;
+            overflow: hidden; /* Evita el desbordamiento */
+        }
+        .header, .footer {
+            background-color: #343a40; /* Color de fondo */
+            color: #f8f9fa; /* Color del texto */
+            padding: 10px; /* Espaciado interior */
+            text-align: center; /* Alineación centrada del texto */
+        }
+        .header {
+            flex: 0 0 auto; /* No se estira */
+        }
+        .footer {
+            flex: 0 0 auto; /* No se estira */
+        }
+        .content {
+            flex: 1 1 auto; /* Se expande */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centrado vertical */
+            align-items: center; /* Centrado horizontal */
+            overflow: hidden; /* Evita el desbordamiento */
+        }
+        .card {
+            width: 350px; /* Ancho fijo */
+            margin-bottom: 20px; /* Margen inferior */
+        }
+        .card-text {
+            text-align: justify; /* Alineación justificada del texto */
+        }
+        .btn-ver-datos {
+            margin-top: 20px; /* Separación desde arriba */
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado -->
+    <div class="header">
+        <h3>Inicio</h3>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="content">
+        <!-- Enlace para ver datos -->
+        <a href="{{ url_for('datos') }}" class="btn btn-primary btn-ver-datos">Ver datos</a>
+        
+        <!-- Tarjeta con imagen y texto -->
+        <div class="card">
+            <img src="https://d3t4nwcgmfrp9x.cloudfront.net/upload/web-permite-saber-webs-tienen-datos-tuyos-643x342.png" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Módulo de navegación de Inicio</h5>
+                <p class="card-text">Este módulo es solo la instancia inicial, nos permite redirigirnos al módulo de la visualización de los datos.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <div class="footer">
+        <p>&copy; 2024 - Registro de Ventas</p>
+    </div>
+
+    <!-- Scripts JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+</body>
+</html>

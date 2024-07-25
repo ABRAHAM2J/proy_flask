@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos de Ventas</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+    <style>
+        /* Estilos CSS adicionales para la página */
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 100% del viewport height */
+            margin: 0;
+            overflow: hidden; /* Evita el desbordamiento */
+        }
+        .header, .footer {
+            background-color: #343a40; /* Color de fondo */
+            color: #f8f9fa; /* Color del texto */
+            padding: 10px; /* Espaciado interior */
+            text-align: center; /* Alineación centrada del texto */
+        }
+        .header {
+            flex: 0 0 auto; /* No se estira */
+        }
+        .footer {
+            flex: 0 0 auto; /* No se estira */
+        }
+        .content {
+            flex: 1 1 auto; /* Se expande */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Evita el desbordamiento */
+        }
+        .table-container {
+            flex: 1 1 auto; /* Se expande */
+            overflow-y: auto; /* Scroll vertical si es necesario */
+            margin: 20px auto; /* Margen */
+            max-width: 1400px; /* Ancho máximo */
+            width: auto; /* Ancho automático */
+            position: relative; /* Importante para los encabezados fijos */
+        }
+        .table-container table {
+            width: 100%; /* Ancho completo */
+            table-layout: fixed; /* Fijamos el ancho de la tabla */
+        }
+        .table {
+            margin-bottom: 0; /* Evita desbordamientos innecesarios */
+        }
+        .table thead th {
+            position: sticky; /* Encabezados fijos */
+            top: 0; /* En la parte superior */
+            background-color: #343a40; /* Color de fondo */
+            color: #f8f9fa; /* Color del texto */
+            z-index: 1; /* Capa z-index para superponer */
+        }
+        .table tbody tr {
+            transition: background-color .3s; /* Transición de color de fondo */
+        }
+        .table tbody tr:hover {
+            background-color: #f1f1f1; /* Color de fondo al pasar el ratón */
+        }
+        .table thead th, .table tbody td {
+            white-space: nowrap; /* No envolver texto */
+            padding: 8px; /* Espaciado interior */
+            text-align: center; /* Alineación centrada */
+        }
+        .btn-registrar-container {
+            text-align: center; /* Alineación centrada del texto */
+            padding: 10px; /* Espaciado interior */
+            background-color: #f8f9fa; /* Color de fondo */
+            flex: 0 0 auto; /* No se expande */
+        }
+        .btn-registrar {
+            background-color: #dc3545; /* Color de fondo del botón */
+            color: white; /* Color del texto */
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado -->
+    <div class="header">
+        <h3>Datos de Ventas</h3>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="content">
+        <!-- Contenedor de la tabla con scroll -->
+        <div class="table-container">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Color</th>
+                        <th>Material</th>
+                        <th>Agregado</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Precio Total</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in ventas %}
+                    <tr>
+                        <td>{{ venta.id }}</td>
+                        <td>{{ venta.tipo }}</td>
+                        <td>{{ venta.color }}</td>
+                        <td>{{ venta.material }}</td>
+                        <td>{{ venta.agregado }}</td>
+                        <td>{{ venta.cantidad }}</td>
+                        <td>{{ venta.precioU }}</td>
+                        <td>{{ venta.precioT }}</td>
+                        <td>{{ venta.fecha }}</td>
+                        <td>
+                            <a href="#" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="#" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- Botón para registrar nueva venta -->
+        <div class="btn-registrar-container">
+            <a href="{{ url_for('registro') }}" class="btn btn-registrar">Registrar Venta</a>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <div class="footer">
+        <p>&copy; 2024 - Registro de Ventas</p>
+    </div>
+
+    <!-- Scripts JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Ajuste dinámico de ancho de columnas al hacer scroll horizontal
+            $('.table-container').scroll(function() {
+                var scrollLeft = $(this).scrollLeft();
+                $('.table thead th').css('left', -scrollLeft + 'px');
+            });
+        });
+    </script>
+</body>
+</html>

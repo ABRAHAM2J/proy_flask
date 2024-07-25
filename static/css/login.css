@@ -1,0 +1,118 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #000000, #ffffff);
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.login-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid #a02828; /* Borde delgado de color rojo */
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.5); /* Tamaño de la sombra ajustado */
+    width: 450px; /* Tamaño del formulario */
+    max-width: 100%; /* Para asegurar que el formulario sea responsivo */
+    text-align: center;
+}
+
+.logo {
+    width:auto;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 24px;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #696565;
+    border-radius: 5px;
+}
+
+.icon-label {
+    margin-right: 10px;
+    color: #696565;
+}
+
+.input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper .input {
+    padding-right: 40px; /* Espacio para el icono del ojo */
+}
+
+#togglePassword {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    color: #696565;
+    cursor: pointer;
+}
+
+.submit {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #a02828; /* Fondo rojo */
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.submit:hover {
+    background: #922323; /* Fondo rojo oscuro */
+}
+
+.footer {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+.link {
+    color: #a02828; /* Color rojo */
+    text-decoration: none;
+}

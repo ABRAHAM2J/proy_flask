@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Web</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+<div class="container">
+    <div class="login-form">
+        <img src="{{ url_for('static', filename='image.png') }}" alt="Logo" class="logo">
+        <h1 class="title">Iniciar Sesión</h1>
+        <p class="subtitle">Bienvenido. Inicia sesión para acceder al sistema</p>
+        <form action="{{ url_for('login') }}" method="post">
+            <div class="input-group">
+                <label for="username" class="icon-label"><i class="fas fa-user"></i></label>
+                <input type="text" id="username" name="username" class="input" placeholder="Usuario" required>
+            </div>
+            <div class="input-group">
+                <label for="password" class="icon-label"><i class="fas fa-lock"></i></label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" class="input" placeholder="Contraseña" required>
+                    <i class="fas fa-eye" id="togglePassword" style="cursor: pointer;"></i>
+                </div>
+            </div>
+            <button type="submit" class="submit">INICIAR SESIÓN</button>
+        </form>
+    </div>
+</div>
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // toggle the eye icon
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
+</body>
+</html>
