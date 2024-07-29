@@ -1,6 +1,7 @@
 import os
 import json
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
+from jinja2 import TemplateNotFound
 import mysql.connector
 from datetime import datetime, timedelta
 import pandas as pd
@@ -10,7 +11,7 @@ import pickle
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='views')
 app.secret_key = 'supersecretkey'
 
 # Configuración de la base de datos
@@ -18,7 +19,7 @@ db_config = {
     'user': 'root',  
     'password': '',  
     'host': 'localhost',
-    'database': 'VENTAS_LUZ' 
+    'database': 'bd_ventas' 
 }
 
 # Listas predefinidas
@@ -79,30 +80,53 @@ def index():
     # Serializar el diccionario agregados_por_tipo a JSON
     agregados_json = json.dumps(agregados_por_tipo)
     # Pasar la cadena JSON a la plantilla
-    return render_template('index.html', agregados_json=agregados_json)
+    return render_template('login.html', agregados_json=agregados_json)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'id' in session:
+        return render_template('inicio.html')
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM persona WHERE nombre = %s AND apellido = %s', (username, password))
+        cursor.execute('SELECT * FROM usuario WHERE username = %s AND password = %s', (username, password))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
 
         if user:
-            session['user_id'] = user['id']
-            session['username'] = user['nombre']
+            session['id'] = user['id']
+            session['username'] = user['username']
+            session['rol'] = user['rol']
+            session['id_persona'] = user['id_persona']
             flash('Inicio de sesión exitoso.', 'success')
-            return redirect(url_for('index'))
+            if user['rol'] == 'administrador':
+                return render_template('inicio.html')
+            elif user['rol'] == 'encargado' or user['rol'] == 'empleado':
+                return render_template('registro.html')
         else:
             flash('Nombre de usuario o contraseña incorrectos.', 'danger')
+            return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    session.pop('id', None)
+    session.pop('username', None)
+    session.pop('rol', None)
+    session.pop('id_persona', None)
+    flash('Cierre de sesión exitoso.', 'success')
     return render_template('login.html')
+
+@app.route('/<page_name>')
+def render_page(page_name):
+    try:
+        return render_template(f'{page_name}')
+    except TemplateNotFound:
+        return redirect(url_for('page_not_found'))
 
 
 @app.route('/registro', methods=['POST'])
@@ -121,7 +145,7 @@ def registro():
 
         if not (tipo and color and material and agregado and cantidad and precioU and fecha):
             flash('Todos los campos son obligatorios.', 'danger')
-            return redirect(url_for('index'))
+            return redirect(url_for('registro_venta'))
 
         cantidad = int(cantidad)
         precioU = float(precioU)

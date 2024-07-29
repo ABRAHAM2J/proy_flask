@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Profile - Brand</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+</head>
+
+<body id="page-top">
+    {% if 'rol' in session %}
+    <div id="wrapper">
+        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="background: #760a16;">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#" style="--bs-primary: #44040b;--bs-primary-rgb: 68,4,11;--bs-secondary: #760a16;--bs-secondary-rgb: 118,10,22;--bs-success: #ad1326;--bs-success-rgb: 173,19,38;">
+                    <div class="sidebar-brand-icon rotate-n-15" data-bs-theme="dark"></div>
+                    <div class="sidebar-brand-text mx-3"><span>IMER</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    {% if session['rol'] == 'administrador' %}
+                    <li class="nav-item"><a class="nav-link active" href="inicio.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="register.html"><i class="fas fa-user-circle"></i><span>Registro Usuarios</span></a></li>
+                    {% elif session['rol'] == 'encargado' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
+                    {% elif session['rol'] == 'empleado' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="profile.html"><i class="fas fa-user"></i><span>Profile</span></a></li> 
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-arrow-right"></i><span>Cerrar Sesión</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar">
+                <ul class="navbar-nav flex-nowrap ms-auto">
+                    <li class="nav-item dropdown no-arrow">
+                        <div class="nav-item dropdown no-arrow">
+                            <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
+                                <span class="d-none d-lg-inline me-2 text-gray-600 small">{{ session['rol'] }}</span>
+                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+            <div id="content">
+                
+                <div class="container-fluid">
+                    <h3 class="text-dark mb-4">Profile</h3>
+                    <div class="row mb-3">
+                        
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 fw-bold">Datos Personales</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="nombre"><strong>Nombres</strong></label><input class="form-control" type="text" id="nombre" name="nombre"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="apellido"><strong>Apellidos</strong></label><input class="form-control" type="text" id="apellido" name="apellido"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="ci"><strong>C.I.</strong></label><input class="form-control" type="text" id="ci" name="ci"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="genero"><strong>Genero</strong></label><input class="form-control" type="text" id="genero" name="genero"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="email"><strong>Email</strong></label><input class="form-control" type="text" id="email" name="email"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="telefono"><strong>Telefono</strong></label><input class="form-control" type="text" id="telefono" name="telefono"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="direccion"><strong>Direccion</strong></label><input class="form-control" type="text" id="direccion" name="direccion"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="fecha_nac"><strong>Fecha Nacimiento</strong></label><input class="form-control" type="date" id="fecha_nac" name="fecha_nac"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">GUARDAR</button></div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="card shadow">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 fw-bold">Ajustes de Usuario</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="username"><strong>Username</strong></label><input class="form-control" type="text" id="username" placeholder="username" name="username"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="password"><strong>Password</strong></label><input class="form-control" type="password" id="email" placeholder="************" name="password"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="rol"><strong>Rol</strong></label><input class="form-control" type="text" id="rol"  name="rol"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">GUARDAR</button></div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>IZI</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    {% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

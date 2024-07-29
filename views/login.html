@@ -10,9 +10,9 @@
 <body>
 <div class="container">
     <div class="login-form">
-        <img src="{{ url_for('static', filename='image.png') }}" alt="Logo" class="logo">
+        <img src="../static/img/dogs/image.jpeg" alt="Logo" class="logo">
         <h1 class="title">Iniciar Sesión</h1>
-        <p class="subtitle">Bienvenido. Inicia sesión para acceder al sistema</p>
+        <p class="subtitle">Ingresar sus credenciales</p>
         <form action="{{ url_for('login') }}" method="post">
             <div class="input-group">
                 <label for="username" class="icon-label"><i class="fas fa-user"></i></label>
