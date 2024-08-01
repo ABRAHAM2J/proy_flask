@@ -32,7 +32,7 @@
                                 class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="table.html"><i
                                 class="fas fa-table"></i><span>Inventario</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="register.html"><i
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i
                                 class="fas fa-user-circle"></i><span>Registro Usuarios</span></a></li>
                     {% elif session['rol'] == 'encargado' %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
@@ -155,18 +155,12 @@
                                                 </div>
                                             </form>
                                             {% if session['rol'] == 'encargado' or session['rol'] == 'administrador' %}
-                                            <div class="mt-3 text-center">
-                                                <a href="{{ url_for('prediccion') }}" class="btn btn-warning">Predecir
-                                                    para el Día Siguiente</a>
+                                            <div class="d-flex justify-content-center mt-3">
+                                                <a href="{{ url_for('prediccion') }}" class="btn btn-warning me-2">Predecir para el Día Siguiente</a>
+                                                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#fechaModal">Predecir para una Fecha Futura</button>
                                             </div>
-                                            <div class="mt-3 text-center">
-                                                <button type="button" class="btn btn-info" data-bs-toggle="modal"
-                                                    data-bs-target="#fechaModal">Predecir para una Fecha Futura</button>
-                                            </div>
+                                            
                                             {% endif %}
-                                            <div class="mt-3 text-center">
-                                                <a href="{{ url_for('datos') }}" class="btn btn-secondary">Ver Datos</a>
-                                            </div>
                                         </div>
                                         <div class="card-body">
 

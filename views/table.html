@@ -24,7 +24,7 @@
                     <li class="nav-item"><a class="nav-link active" href="inicio.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="register.html"><i class="fas fa-user-circle"></i><span>Registro Usuarios</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i class="fas fa-user-circle"></i><span>Registro Usuarios</span></a></li>
                     {% elif session['rol'] == 'encargado' %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
@@ -32,7 +32,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
                     {% endif %}
-                    <li class="nav-item"><a class="nav-link" href="profile.html"><i class="fas fa-user"></i><span>Profile</span></a></li> 
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}"><i class="fas fa-user"></i><span>Profile</span></a></li> 
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-arrow-right"></i><span>Cerrar Sesión</span></a></li>
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>

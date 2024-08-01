@@ -1,46 +1,469 @@
 <!DOCTYPE html>
-<html data-bs-theme="light" lang="en" style="--bs-primary: #760a16;--bs-primary-rgb: 118,10,22;background: #760a16;">
+<html data-bs-theme="light" lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Register - Brand</title>
+    <title>Profile - Brand</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
 </head>
 
-<body class="bg-gradient-primary" style="background: #760a16;">
-    <div class="container" style="background: #760a16;">
-        <div class="card shadow-lg o-hidden border-0 my-5">
-            <div class="card-body p-0">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="p-5">
-                            <div class="text-center">
-                                <h4 class="text-dark mb-4">Registrar Usuario</h4>
-                            </div>
-                            <form class="user">
-                                <div class="row mb-3">
-                                    <div class="col-sm-6 mb-3 mb-sm-0"><input class="form-control form-control-user" type="text" id="exampleFirstName" placeholder="First Name" name="first_name"></div>
-                                    <div class="col-sm-6"><input class="form-control form-control-user" type="text" id="exampleLastName" placeholder="Last Name" name="last_name"></div>
+<body id="page-top">
+    {% if 'rol' in session %}
+    <div id="wrapper">
+        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"
+            style="background: #760a16;">
+            <div class="container-fluid d-flex flex-column p-0"><a
+                    class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#"
+                    style="--bs-primary: #44040b;--bs-primary-rgb: 68,4,11;--bs-secondary: #760a16;--bs-secondary-rgb: 118,10,22;--bs-success: #ad1326;--bs-success-rgb: 173,19,38;">
+                    <div class="sidebar-brand-icon rotate-n-15" data-bs-theme="dark"></div>
+                    <div class="sidebar-brand-text mx-3"><span>IMER</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    {% if session['rol'] == 'administrador' %}
+                    <li class="nav-item"><a class="nav-link active" href="inicio.html"><i
+                                class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
+                                class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="table.html"><i
+                                class="fas fa-table"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i
+                                class="fas fa-user-circle"></i><span>Registro Usuarios</span></a></li>
+                    {% elif session['rol'] == 'encargado' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
+                                class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="table.html"><i
+                                class="fas fa-table"></i><span>Inventario</span></a></li>
+                    {% elif session['rol'] == 'empleado' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
+                                class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="table.html"><i
+                                class="fas fa-table"></i><span>Inventario</span></a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}"><i
+                                class="fas fa-user"></i><span>Profile</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i
+                                class="fas fa-arrow-right"></i><span>Cerrar Sesión</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0"
+                        id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar">
+                <ul class="navbar-nav flex-nowrap ms-auto">
+                    <li class="nav-item dropdown no-arrow">
+                        <div class="nav-item dropdown no-arrow">
+                            <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown"
+                                href="#">
+                                <span class="d-none d-lg-inline me-2 text-gray-600 small">{{ session['rol'] }}</span>
+                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+            <div id="content">
+
+                <div class="container-fluid">
+                    <h3 class="text-dark mb-4">Registrar Nuevo Usuario</h3>
+                    <div class="row mb-3">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 fw-bold">Datos Personales</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form method="post" action="{{ url_for('create_user') }}">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label"
+                                                                for="nombre"><strong>Nombres</strong></label><input
+                                                                class="form-control" type="text" id="nombre"
+                                                                name="nombre"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label"
+                                                                for="apellido"><strong>Apellidos</strong></label><input
+                                                                class="form-control" type="text" id="apellido"
+                                                                name="apellido"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label"
+                                                                for="ci"><strong>C.I.</strong></label><input
+                                                                class="form-control" type="text" id="ci" name="ci">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <label class="form-label"
+                                                                for="genero"><strong>Genero</strong></label>
+                                                            <select class="form-control" id="genero" name="genero">
+                                                                <option value="encargado">Masculino</option>
+                                                                <option value="empleado">Femenino</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label"
+                                                                for="email"><strong>Email</strong></label><input
+                                                                class="form-control" type="text" id="email"
+                                                                name="email"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label"
+                                                                for="telefono"><strong>Telefono</strong></label><input
+                                                                class="form-control" type="text" id="telefono"
+                                                                name="telefono"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label"
+                                                                for="direccion"><strong>Direccion</strong></label><input
+                                                                class="form-control" type="text" id="direccion"
+                                                                name="direccion"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label"
+                                                                for="fecha_nac"><strong>Fecha
+                                                                    Nacimiento</strong></label><input
+                                                                class="form-control" type="date" id="fecha_nac"
+                                                                name="fecha_nac"></div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3">
+                                                            <label class="form-label"
+                                                                for="rol"><strong>Rol</strong></label>
+                                                            <select class="form-control" id="rol" name="rol">
+                                                                <option value="encargado">Encargado</option>
+                                                                <option value="empleado">Empleado</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3"><button class="btn btn-primary btn-sm"
+                                                        type="submit">GUARDAR</button></div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mb-3"><input class="form-control form-control-user" type="email" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Email Address" name="email"></div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-6 mb-3 mb-sm-0"><input class="form-control form-control-user" type="password" id="examplePasswordInput" placeholder="Password" name="password"></div>
-                                    <div class="col-sm-6"><input class="form-control form-control-user" type="password" id="exampleRepeatPasswordInput" placeholder="Repeat Password" name="password_repeat"></div>
-                                </div><button class="btn btn-primary d-block btn-user w-100" type="submit">Register Account</button>
-                                <hr>
-                                <hr>
-                            </form>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-dark mb-4">Lista de Usuarios</h3>
+                    <div class="row mb-3">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 fw-bold">Datos</p>
+                                        </div>
+                                        <div class="content">
+                                            <!-- Contenedor de la tabla con scroll -->
+                                            <div class="table-container">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Id</th>
+                                                            <th>Nombres</th>
+                                                            <th>Apellidos</th>
+                                                            <th>CI</th>
+                                                            <th>Genero</th>
+                                                            <th>Email</th>
+                                                            <th>Telefono</th>
+                                                            <th>Direccion</th>
+                                                            <th>Fecha Nacimiento</th>
+                                                            <th>Username</th>
+                                                            <th>Password</th>
+                                                            <th>Rol</th>
+                                                            <th>Acciones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for usuario in usuarios %}
+                                                        <tr>
+                                                            <td>{{ usuario.id }}</td>
+                                                            <td>{{ usuario.nombre }}</td>
+                                                            <td>{{ usuario.apellido }}</td>
+                                                            <td>{{ usuario.ci }}</td>
+                                                            <td>{{ usuario.genero }}</td>
+                                                            <td>{{ usuario.email }}</td>
+                                                            <td>{{ usuario.telefono }}</td>
+                                                            <td>{{ usuario.direccion }}</td>
+                                                            <td>{{ usuario.fecha_nac }}</td>
+                                                            <td>{{ usuario.username }}</td>
+                                                            <td>{{ usuario.password }}</td>
+                                                            <td>{{ usuario.rol }}</td>
+                                                            <td>
+                                                                <button class="btn btn-primary btn-sm"
+                                                                    onclick='openEditarModal(JSON.parse(decodeURIComponent("{{ usuario | tojson | safe | urlencode }}")))'>
+                                                                    <i class="fas fa-pencil-alt"></i>
+                                                                </button>
+                                                                <button class="btn btn-danger btn-sm"
+                                                                    onclick="openEliminarModal(JSON.parse('{{ usuario.id_persona }}'))"><i
+                                                                        class="fas fa-trash-alt"></i></button>
+
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <!-- Modal para editar usuarios -->
+            <div class="modal fade" id="editarUsuarioModal" tabindex="-1" aria-labelledby="editarUsuarioModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editarUsuarioModalLabel">Editar Usuario</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editarDatosPersonalesForm">
+                                <!-- Campos llenados por JavaScript -->
+                            </form>
+                            <form id="editarAjustesUsuarioForm">
+                                <!-- Campos llenados por JavaScript -->
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary"
+                                onclick="submitEditarDatosPersonalesForm()">Guardar Datos Personales</button>
+                            <button type="button" class="btn btn-primary"
+                                onclick="submitEditarAjustesUsuarioForm()">Guardar Datos de Usuario</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Modal para confirmar eliminación -->
+            <div class="modal fade" id="eliminaruserModal" tabindex="-1" aria-labelledby="eliminaruserModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="eliminarVentaModalLabel">Confirmar Eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>¿Estás seguro de que deseas eliminar esta venta?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-danger"
+                                onclick="submitEliminarForm()">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>IZI</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
+    {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script>
+        function togglePasswordVisibility() {
+            var passwordField = document.getElementById('password');
+            var showPasswordCheckbox = document.getElementById('showPassword');
+            if (showPasswordCheckbox.checked) {
+                passwordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
+            }
+        }
+
+        let userIdToEdit = null;
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function openEditarModal(user) {
+            userIdToEdit = user.id_persona;
+            const formattedFecha = formatDate(user.fecha_nac);
+
+            const datosPersonalesForm = document.getElementById('editarDatosPersonalesForm');
+            datosPersonalesForm.innerHTML = `
+                <h3 class="text-dark mb-4">Datos Personales</h3>
+                <input type="hidden" name="user_id" value="${user.id}">
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="nombre"><strong>Nombres</strong></label>
+                            <input class="form-control" type="text" id="nombre" name="nombre" value="${user.nombre}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="apellido"><strong>Apellidos</strong></label>
+                            <input class="form-control" type="text" id="apellido" name="apellido" value="${user.apellido}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="ci"><strong>C.I.</strong></label>
+                            <input class="form-control" type="text" id="ci" name="ci" value="${user.ci}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="genero"><strong>Genero</strong></label>
+                            <input class="form-control" type="text" id="genero" name="genero" value="${user.genero}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="email"><strong>Email</strong></label>
+                            <input class="form-control" type="text" id="email" name="email" value="${user.email}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="telefono"><strong>Telefono</strong></label>
+                            <input class="form-control" type="text" id="telefono" name="telefono" value="${user.telefono}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="direccion"><strong>Direccion</strong></label>
+                            <input class="form-control" type="text" id="direccion" name="direccion" value="${user.direccion}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="fecha_nac"><strong>Fecha Nacimiento</strong></label>
+                            <input class="form-control" type="date" id="fecha_nac" name="fecha_nac" value="${formattedFecha}">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const ajustesUsuarioForm = document.getElementById('editarAjustesUsuarioForm');
+            ajustesUsuarioForm.innerHTML = `
+                <h3 class="text-dark mb-4">Datos de Usuario</h3>
+                <input type="hidden" name="user_id" value="${user.id}">
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="username"><strong>Username</strong></label>
+                            <input class="form-control" type="text" id="username" name="username" value="${user.username}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="password"><strong>Password</strong></label>
+                            <input class="form-control" type="password" id="password" name="password" value="${user.password}">
+                            <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()"> Mostrar contraseña
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="rol"><strong>Rol</strong></label>
+                            <select class="form-control" id="rol" name="rol">
+                                <option value="encargado" ${user.rol === 'encargado' ? 'selected' : ''}>Encargado</option>
+                                <option value="empleado" ${user.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
+            modal.show();
+        }
+        console.log(userIdToEdit)
+
+        function submitEditarDatosPersonalesForm() {
+            const form = document.getElementById('editarDatosPersonalesForm');
+            const formData = new FormData(form);
+            fetch(`/editar_datos_personales/${userIdToEdit}`, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Error al editar los datos personales');
+                }
+            });
+        }
+
+        function submitEditarAjustesUsuarioForm() {
+            const form = document.getElementById('editarAjustesUsuarioForm');
+            const formData = new FormData(form);
+            fetch(`/editar_ajustes_usuario/${userIdToEdit}`, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Error al editar los ajustes de usuario');
+                }
+            });
+        }
+
+
+
+
+        function openEliminarModal(userId) {
+            userIdToDelete = userId;
+            const modal = new bootstrap.Modal(document.getElementById('eliminaruserModal'));
+            modal.show();
+        }
+
+        function submitEliminarForm() {
+            fetch(`/eliminar_user/${userIdToDelete}`, {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Error al eliminar la user');
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

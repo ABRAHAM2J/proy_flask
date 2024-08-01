@@ -1,13 +1,15 @@
-import os
 import json
-from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, send_file, session
-from jinja2 import TemplateNotFound
-import mysql.connector
-from datetime import datetime, timedelta
-import pandas as pd
-import numpy as np
-from keras.models import load_model
+import os
 import pickle
+from datetime import datetime, timedelta
+
+import mysql.connector
+import numpy as np
+import pandas as pd
+from flask import (Flask, flash, jsonify, redirect, render_template, request,
+                   send_file, session, url_for)
+from jinja2 import TemplateNotFound
+from keras.models import load_model
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
@@ -16,10 +18,10 @@ app.secret_key = 'supersecretkey'
 
 # Configuración de la base de datos
 db_config = {
-    'user': 'root',  
-    'password': '',  
+    'user': 'root',
+    'password': '',
     'host': 'localhost',
-    'database': 'bd_ventas' 
+    'database': 'bd_ventas'
 }
 
 # Función para obtener datos de la base de datos
@@ -253,6 +255,204 @@ def eliminar_venta(venta_id):
     execute_db_command(query, (venta_id,))
     flash('Venta eliminada correctamente.', 'success')
     return redirect(url_for('registro'))
+
+
+@app.route('/profile')
+def profile():
+    if 'id' not in session:
+        return redirect(url_for('login'))  # Redirigir al login si no hay una sesión activa
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM usuario WHERE id = %s', (session['id'],))
+    user = cursor.fetchone()
+
+    if user:
+        cursor.execute('SELECT * FROM persona WHERE id = %s', (session['id_persona'],))
+        persona = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
+
+        if persona:
+            return render_template('profile.html', user=user, persona=persona)
+    else:
+        cursor.close()
+        conn.close()
+        flash('Usuario no encontrado.', 'danger')
+        return render_template('login.html')
+
+    return render_template('login.html')
+
+
+@app.route('/update_datos', methods=['POST'])
+def update_datos():
+    if 'id' not in session:
+        flash('Debe iniciar sesión primero.', 'danger')
+        return redirect(url_for('login'))
+    
+    user_id = session['id']
+    nombre = request.form['nombre']
+    apellido = request.form['apellido']
+    ci = request.form['ci']
+    genero = request.form['genero']
+    email = request.form['email']
+    telefono = request.form['telefono']
+    direccion = request.form['direccion']
+    fecha_nac = request.form['fecha_nac']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Actualizar la tabla persona
+    cursor.execute("""
+        UPDATE persona
+        SET nombre = %s, apellido = %s, ci = %s, genero = %s, email = %s, telefono = %s, direccion = %s, fecha_nac = %s
+        WHERE id = %s
+    """, (nombre, apellido, ci, genero, email, telefono, direccion, fecha_nac, session['id_persona']))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash('Perfil actualizado con éxito.', 'success')
+    return redirect(url_for('profile'))
+
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    if 'id' not in session:
+        flash('Debe iniciar sesión primero.', 'danger')
+        return redirect(url_for('login'))
+    
+    user_id = session['id']
+    username = request.form['username']
+    password = request.form['password']
+    rol = request.form['rol']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Actualizar la tabla usuario
+    cursor.execute("""
+        UPDATE usuario
+        SET username = %s, password = %s, rol = %s
+        WHERE id = %s
+    """, (username, password, rol, user_id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash('Perfil actualizado con éxito.', 'success')
+    return redirect(url_for('profile'))
+
+
+@app.route('/register')
+def register():
+    query1 = "SELECT * FROM usuario u, persona p WHERE u.id_persona = p.id"
+    usuarios = get_data_from_db(query1)
+
+    return render_template('register.html', usuarios=usuarios)
+
+@app.route('/create_user', methods=['POST'])
+def create_user():
+    if 'id' not in session:
+        flash('Debe iniciar sesión primero.', 'danger')
+        return redirect(url_for('login'))
+    
+    nombre = request.form['nombre']
+    apellido = request.form['apellido']
+    ci = request.form['ci']
+    genero = request.form['genero']
+    email = request.form['email']
+    telefono = request.form['telefono']
+    direccion = request.form['direccion']
+    fecha_nac = request.form['fecha_nac']
+    rol = request.form['rol']
+
+    # Generar username y password
+    nombre_split = nombre.strip().split()
+    apellido_split = apellido.strip().split()
+    
+    if len(nombre_split) > 0 and len(apellido_split) > 0:
+        username = nombre_split[0][0].lower() + apellido_split[0].lower()
+        if len(apellido_split) > 1:
+            username += apellido_split[1][0].lower()
+        password = username  # Esto es solo un ejemplo; usualmente, las contraseñas deben ser más seguras
+    else:
+        flash('Nombre o apellido no proporcionados correctamente.', 'danger')
+        return redirect(url_for('register'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Insertar en la tabla persona
+    cursor.execute("""
+        INSERT INTO persona (nombre, apellido, ci, genero, email, telefono, direccion, fecha_nac)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, (nombre, apellido, ci, genero, email, telefono, direccion, fecha_nac))
+    
+    # Obtener el id de la persona recién creada
+    persona_id = cursor.lastrowid
+
+    # Insertar en la tabla usuario
+    cursor.execute("""
+        INSERT INTO usuario (username, password, rol, id_persona)
+        VALUES (%s, %s, %s, %s)
+    """, (username, password, rol, persona_id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash('Usuario creado con éxito.', 'success')
+    return redirect(url_for('register'))
+
+
+@app.route('/editar_datos_personales/<int:user_id>', methods=['POST'])
+def editar_datos_personales(user_id):
+    nombre = request.form['nombre']
+    apellido = request.form['apellido']
+    ci = request.form['ci']
+    genero = request.form['genero']
+    email = request.form['email']
+    telefono = request.form['telefono']
+    direccion = request.form['direccion']
+    fecha_nac = request.form['fecha_nac']
+    
+    query = '''
+        UPDATE persona
+        SET nombre = %s, apellido = %s, ci = %s, genero = %s, email = %s, telefono = %s, direccion = %s, fecha_nac = %s
+        WHERE id = %s
+    '''
+    params = (nombre, apellido, ci, genero, email, telefono, direccion, fecha_nac, user_id)
+    get_data_from_db(query, params)
+    flash('Datos personales actualizados correctamente.', 'success')
+    return redirect(url_for('register'))
+
+@app.route('/editar_ajustes_usuario/<int:user_id>', methods=['POST'])
+def editar_ajustes_usuario(user_id):
+    username = request.form['username']
+    password = request.form['password']
+    rol = request.form['rol']
+
+    query = '''
+        UPDATE usuario
+        SET username = %s, password = %s, rol = %s
+        WHERE id_persona = %s
+    '''
+    params = (username, password, rol, user_id)
+    get_data_from_db(query, params)
+    flash('Ajustes de usuario actualizados correctamente.', 'success')
+    return redirect(url_for('register'))
+
+
+
+
+
+
+
+
 
 
 
