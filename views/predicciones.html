@@ -130,7 +130,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         function guardarPredicciones() {
-            const predicciones = {{ predicciones | tojson }};
+            const predicciones = JSON.parse('{{ predicciones | tojson }}');
             fetch("{{ url_for('guardar_predicciones') }}", {
                 method: "POST",
                 headers: {

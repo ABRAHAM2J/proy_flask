@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, send_file, session
 from jinja2 import TemplateNotFound
 import mysql.connector
 from datetime import datetime, timedelta
@@ -22,44 +22,73 @@ db_config = {
     'database': 'bd_ventas' 
 }
 
-# Listas predefinidas
-tipos = sorted([
-    'Silla giratoria', 'Silla de espera', 'Silla estática', 'Silla mesedora', 'Silla de peluquería',
-    'Silla estática con brazo', 'Catre de internación', 'Camillas para masajes', 'Gradilla de 2 peldaños',
-    'Biombo', 'Negtoscopio', 'Camilla tipo escritorio', 'Taburete médico', 'Camilla con Barillas',
-    'Lámpara de cuello ganzo', 'Velador clínico', 'Camilla de ginecología', 'Pedestal porta sueros',
-    'Camilla de examen', 'Camilla de examen con espaldar movible', 'Mesa de trabajo', 'Mesa de curación',
-    'Mesa de instrumentación', 'Horno semi-industrial', 'Cocina industrial de dos quemadores', 'Horno domestico',
-    'Broastera simple', 'Horno hogareño', 'Góndolas para supermercados', 'Estanteria tipo vitrin',
-    'Casillero de cuatro puertas', 'Estante de puertas corredizas', 'Casillero de dos puertas',
-    'Casillero de 6 puertas', 'Casillero de 12 puertas', 'Casillero de 15 puertas', 'Casillero de 2 puertas',
-    'Casillero de 20 puertas', 'Casillero de 9 puertas', 'Casillero de 1 cuerpo y 4 puertas',
-    'Casillero de 1 cuerpo y tres puertas', 'Casillero de 1 cuerpo y 1 puerta', 'Vitrina doble chapa',
-    'Ropero casillero', 'Alacena con pedestal', 'Cajero para supermercado', 'Mostrador para librería',
-    'Estante mostrador', 'Credenza', 'Estante Archivador', 'Estante para farmacia de dos cuerpos',
-    'Estante para farmacia', 'Vitrina para farmacia', 'Estante para farmacia', 'Escritorio secretarial de cuatro cajas con chapa clave',
-    'Escritorio ejecutivo de siete cajas', 'Vitrina de puertas corredizas', 'Gabinete de dos cuerpos',
-    'Armario de dos cuerpos', 'Estante para archivos con bandejas', 'Archivero', 'Gabetero con chapa independiente',
-    'Archivador de Chapas Individuales', 'Gabetero de 4 cajas', 'Gabetero de 3 cajas', 'Gabetero de 2 cajas con chapa adicional',
-    'Gabetero de 2 cajas sin chapa', 'Gabetero de 5 cajas'
-])
+# Función para obtener datos de la base de datos
+def get_data_from_db(query, params=None):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(query, params or ())
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data
 
-colores = sorted(['Rojo', 'Azul', 'Negro', 'Blanco', 'Gris'])
-materiales = sorted(['Metal', 'Melamina'])
+# Función para ejecutar comandos de modificación en la base de datos
+def execute_db_command(query, params=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, params or ())
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-agregados_por_tipo = {
-    'Silla': ['Acolchonada', 'No acolchonada', 'Con brazos', 'Sin brazos'],
-    'Mesa': ['Cuadrada', 'Redonda', 'Con cajones', 'Sin cajones'],
-    'Camilla': ['Con barillas', 'Sin barillas', 'Con espaldar movible', 'Fija'],
-    'Casillero': ['Con chapa', 'Sin chapa', 'Con espejo', 'Sin espejo'],
-    'Estante': ['Con puertas', 'Sin puertas', 'De pared', 'De pie'],
-    'Escritorio': ['Con chapas', 'Sin chapas', 'Con ruedas', 'Fijo'],
-    'Horno': ['Con ventilador', 'Sin ventilador', 'A gas', 'Eléctrico'],
-    'Gabetero': ['Con cerradura', 'Sin cerradura', 'De oficina', 'De hogar'],
-    'Vitrina': ['De vidrio', 'De madera', 'Con iluminación', 'Sin iluminación'],
-    'Cama': ['Con cabecera', 'Sin cabecera', 'Plegable', 'Fija'],
-    'Armario': ['Con espejo', 'Sin espejo', 'De madera', 'Metálico']
-}
+# Funcion para el listado de productos en venta
+@app.route('/registro')
+def registro_venta():
+    query1 = "SELECT * FROM tipos"
+    tipos = get_data_from_db(query1)
+
+    query2 = "SELECT * FROM colores"
+    colores = get_data_from_db(query2)
+
+    query3 = "SELECT * FROM materiales"
+    materiales = get_data_from_db(query3)
+
+    query4 = "SELECT * FROM agregados"
+    agregados_data = get_data_from_db(query4)
+
+    agregados_por_tipo = {}
+    for agregado in agregados_data:
+        tipo_id = agregado['tipo']
+        agregado_id = agregado['id']
+        nombre = agregado['nombre']
+        if tipo_id not in agregados_por_tipo:
+            agregados_por_tipo[tipo_id] = []
+        agregados_por_tipo[tipo_id].append({'id': agregado_id, 'nombre': nombre})
+
+    query5 = "SELECT * FROM ventas"
+    ventas = get_data_from_db(query5)
+
+    return render_template('registro.html', tipos=tipos, colores=colores, materiales=materiales, agregados_por_tipo=agregados_por_tipo, ventas=ventas)
+
+@app.route('/get_price', methods=['POST'])
+def get_price():
+    data = request.json
+    tipo_id = data.get('tipo_id')
+    color_id = data.get('color_id')
+    material_id = data.get('material_id')
+    agregado_id = data.get('agregado_id')
+
+    query = "SELECT precioU FROM producto_combinaciones WHERE tipo_id = %s AND color_id = %s AND material_id = %s AND agregado_id = %s"
+    params = (tipo_id, color_id, material_id, agregado_id)
+    result = get_data_from_db(query, params)
+
+    if result:
+        return jsonify(precioU=result[0]['precioU'])
+    else:
+        return jsonify(precioU=None), 404
+
+
+
 
 # Función para conectar a la base de datos
 def get_db_connection():
@@ -78,9 +107,9 @@ def get_next_filename():
 @app.route('/')
 def index():
     # Serializar el diccionario agregados_por_tipo a JSON
-    agregados_json = json.dumps(agregados_por_tipo)
+    # agregados_json = json.dumps(agregados_por_tipo)
     # Pasar la cadena JSON a la plantilla
-    return render_template('login.html', agregados_json=agregados_json)
+    return render_template('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -107,7 +136,7 @@ def login():
             if user['rol'] == 'administrador':
                 return render_template('inicio.html')
             elif user['rol'] == 'encargado' or user['rol'] == 'empleado':
-                return render_template('registro.html')
+                return redirect(url_for('registro'))
         else:
             flash('Nombre de usuario o contraseña incorrectos.', 'danger')
             return render_template('login.html')
@@ -121,12 +150,12 @@ def logout():
     flash('Cierre de sesión exitoso.', 'success')
     return render_template('login.html')
 
-@app.route('/<page_name>')
-def render_page(page_name):
-    try:
-        return render_template(f'{page_name}')
-    except TemplateNotFound:
-        return redirect(url_for('page_not_found'))
+# @app.route('/<page_name>')
+# def render_page(page_name):
+#     try:
+#         return render_template(f'{page_name}')
+#     except TemplateNotFound:
+#         return redirect(url_for('page_not_found'))
 
 
 @app.route('/registro', methods=['POST'])
@@ -143,9 +172,13 @@ def registro():
         precioU = request.form.get(f'precio_{i}')
         fecha = request.form.get(f'fecha_{i}')
 
+        tipo = tipo.split("'")[5]
+        color = color.split("'")[5]
+        material = material.split("'")[5]
+
         if not (tipo and color and material and agregado and cantidad and precioU and fecha):
             flash('Todos los campos son obligatorios.', 'danger')
-            return redirect(url_for('registro_venta'))
+            return redirect(url_for('registro'))
 
         cantidad = int(cantidad)
         precioU = float(precioU)
@@ -174,7 +207,7 @@ def registro():
     ventas_df.to_csv(filename, index=False)
 
     flash('Se han registrado las ventas.', 'success')
-    return redirect(url_for('registro_venta'))
+    return redirect(url_for('registro'))
 
 @app.route('/datos')
 def datos():
@@ -184,11 +217,45 @@ def datos():
     ventas = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('datos.html', ventas=ventas)
+    return render_template('registro.html', ventas=ventas)
 
-@app.route('/registro')
-def registro_venta():
-    return render_template('registro.html', tipos=tipos, colores=colores, materiales=materiales, agregados_por_tipo=agregados_por_tipo)
+
+@app.route('/editar_venta/<int:venta_id>', methods=['GET', 'POST'])
+def editar_venta(venta_id):
+    if request.method == 'POST':
+        tipo_id = request.form['tipo_id']
+        color_id = request.form['color_id']
+        material_id = request.form['material_id']
+        agregado_id = request.form['agregado_id']
+        cantidad = int(request.form['cantidad'])
+        precioU = float(request.form['precioU'])
+        precioT = cantidad * precioU
+        fecha = request.form['fecha']
+
+        query = """
+            UPDATE ventas 
+            SET tipo_id = %s, color_id = %s, material_id = %s, agregado_id = %s, cantidad = %s, precioU = %s, precioT = %s, fecha = %s
+            WHERE id = %s
+        """
+        params = (tipo_id, color_id, material_id, agregado_id, cantidad, precioU, precioT, fecha, venta_id)
+        get_data_from_db(query, params)
+
+        flash('Venta actualizada correctamente.', 'success')
+        return redirect(url_for('registro'))
+
+    query = 'SELECT * FROM ventas WHERE id = %s'
+    venta = get_data_from_db(query, (venta_id,))[0]
+    return render_template('editar_venta.html', venta=venta)
+
+@app.route('/eliminar_venta/<int:venta_id>', methods=['POST'])
+def eliminar_venta(venta_id):
+    query = 'DELETE FROM ventas WHERE id = %s'
+    execute_db_command(query, (venta_id,))
+    flash('Venta eliminada correctamente.', 'success')
+    return redirect(url_for('registro'))
+
+
+
 
 @app.route('/prediccion', methods=['GET'])
 def prediccion():

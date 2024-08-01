@@ -1,0 +1,2 @@
+ID,Tipo,Color,Material,Agregado,Cantidad,Precio Unitario,Precio Total,Fecha
+1,"{'id': 69, 'nombre': 'Silla giratoria'}","{'id': 6, 'nombre': 'Rojo'}","{'id': 3, 'nombre': 'Metal'}",45,2,2.0,4.0,2024-07-30
