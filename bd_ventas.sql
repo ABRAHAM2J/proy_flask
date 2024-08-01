@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-08-2024 a las 13:21:18
+-- Tiempo de generación: 02-08-2024 a las 00:37:45
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.0.28
 
@@ -268,7 +268,7 @@ CREATE TABLE `persona` (
 --
 
 INSERT INTO `persona` (`id`, `nombre`, `apellido`, `ci`, `genero`, `email`, `telefono`, `direccion`, `fecha_nac`) VALUES
-(1, 'Juan', 'Perez', '12345678', 'Masculino', 'juan.perez@example.c', 123456789, 'Direccion 1', '1980-01-01'),
+(1, 'Juan', 'Perez', '12345678', 'Masculino', 'juan.perez@example.c', 123456789, 'Direccion 1', '1979-12-30'),
 (2, 'Maria', 'Lopez', '23456789', 'Femenino', 'maria.lopez@example.', 987654321, 'Direccion 2', '1990-02-02'),
 (3, 'Carlos', 'Gomez', '34567890', 'Masculino', 'carlos.gomez@example', 564738291, 'Direccion 3', '1985-03-03');
 
@@ -3083,6 +3083,12 @@ ALTER TABLE `materiales`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT de la tabla `persona`
+--
+ALTER TABLE `persona`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT de la tabla `producto_combinaciones`
 --
 ALTER TABLE `producto_combinaciones`
@@ -3093,6 +3099,12 @@ ALTER TABLE `producto_combinaciones`
 --
 ALTER TABLE `tipos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
+
+--
+-- AUTO_INCREMENT de la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
