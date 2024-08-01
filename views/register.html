@@ -60,7 +60,9 @@
                         <div class="nav-item dropdown no-arrow">
                             <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown"
                                 href="#">
-                                <span class="d-none d-lg-inline me-2 text-gray-600 small">{{ session['rol'] }}</span>
+                                <span class="d-none d-lg-inline me-2 text-gray-600 small">
+                                    {{ session['nombre'] }} {{ session['apellido'] }} - {{ session['rol'] }}
+                                </span>
                                 <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
                             </a>
                         </div>
@@ -170,8 +172,8 @@
                                         </div>
                                         <div class="content">
                                             <!-- Contenedor de la tabla con scroll -->
-                                            <div class="table-container">
-                                                <table class="table table-striped">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-hover">
                                                     <thead>
                                                         <tr>
                                                             <th>Id</th>
@@ -205,14 +207,12 @@
                                                             <td>{{ usuario.password }}</td>
                                                             <td>{{ usuario.rol }}</td>
                                                             <td>
-                                                                <button class="btn btn-primary btn-sm"
-                                                                    onclick='openEditarModal(JSON.parse(decodeURIComponent("{{ usuario | tojson | safe | urlencode }}")))'>
+                                                                <button class="btn btn-primary btn-sm" onclick='openEditarModal(JSON.parse(decodeURIComponent("{{ usuario | tojson | safe | urlencode }}")))'>
                                                                     <i class="fas fa-pencil-alt"></i>
                                                                 </button>
-                                                                <button class="btn btn-danger btn-sm"
-                                                                    onclick="openEliminarModal(JSON.parse('{{ usuario.id_persona }}'))"><i
-                                                                        class="fas fa-trash-alt"></i></button>
-
+                                                                <button class="btn btn-danger btn-sm" onclick="openEliminarModal(JSON.parse('{{ usuario.id }}'))">
+                                                                    <i class="fas fa-trash-alt"></i>
+                                                                </button>
                                                             </td>
                                                         </tr>
                                                         {% endfor %}
@@ -225,6 +225,7 @@
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
             <!-- Modal para editar usuarios -->
@@ -289,8 +290,8 @@
     </div>
     {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/bs-init.js"></script>
-    <script src="assets/js/theme.js"></script>
+    <script src="{{ url_for('static', filename='js/bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script>
         function togglePasswordVisibility() {
             var passwordField = document.getElementById('password');
@@ -303,6 +304,7 @@
         }
 
         let userIdToEdit = null;
+        let userIdToDelete = null;
 
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -313,64 +315,63 @@
         }
 
         function openEditarModal(user) {
-            userIdToEdit = user.id_persona;
+            userIdToEdit = user.id;
             const formattedFecha = formatDate(user.fecha_nac);
 
             const datosPersonalesForm = document.getElementById('editarDatosPersonalesForm');
             datosPersonalesForm.innerHTML = `
-                <h3 class="text-dark mb-4">Datos Personales</h3>
                 <input type="hidden" name="user_id" value="${user.id}">
                 <div class="row mb-3">
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="nombre"><strong>Nombres</strong></label>
-                            <input class="form-control" type="text" id="nombre" name="nombre" value="${user.nombre}">
+                            <label class="form-label" for="editar_nombre"><strong>Nombres</strong></label>
+                            <input class="form-control" type="text" id="editar_nombre" name="nombre" value="${user.nombre}">
                         </div>
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="apellido"><strong>Apellidos</strong></label>
-                            <input class="form-control" type="text" id="apellido" name="apellido" value="${user.apellido}">
+                            <label class="form-label" for="editar_apellido"><strong>Apellidos</strong></label>
+                            <input class="form-control" type="text" id="editar_apellido" name="apellido" value="${user.apellido}">
                         </div>
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="ci"><strong>C.I.</strong></label>
-                            <input class="form-control" type="text" id="ci" name="ci" value="${user.ci}">
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <div class="mb-3">
-                            <label class="form-label" for="genero"><strong>Genero</strong></label>
-                            <input class="form-control" type="text" id="genero" name="genero" value="${user.genero}">
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="mb-3">
-                            <label class="form-label" for="email"><strong>Email</strong></label>
-                            <input class="form-control" type="text" id="email" name="email" value="${user.email}">
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="mb-3">
-                            <label class="form-label" for="telefono"><strong>Telefono</strong></label>
-                            <input class="form-control" type="text" id="telefono" name="telefono" value="${user.telefono}">
+                            <label class="form-label" for="editar_ci"><strong>C.I.</strong></label>
+                            <input class="form-control" type="text" id="editar_ci" name="ci" value="${user.ci}">
                         </div>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="direccion"><strong>Direccion</strong></label>
-                            <input class="form-control" type="text" id="direccion" name="direccion" value="${user.direccion}">
+                            <label class="form-label" for="editar_genero"><strong>Genero</strong></label>
+                            <input class="form-control" type="text" id="editar_genero" name="genero" value="${user.genero}">
                         </div>
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="fecha_nac"><strong>Fecha Nacimiento</strong></label>
-                            <input class="form-control" type="date" id="fecha_nac" name="fecha_nac" value="${formattedFecha}">
+                            <label class="form-label" for="editar_email"><strong>Email</strong></label>
+                            <input class="form-control" type="text" id="editar_email" name="email" value="${user.email}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="editar_telefono"><strong>Telefono</strong></label>
+                            <input class="form-control" type="text" id="editar_telefono" name="telefono" value="${user.telefono}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="editar_direccion"><strong>Direccion</strong></label>
+                            <input class="form-control" type="text" id="editar_direccion" name="direccion" value="${user.direccion}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label class="form-label" for="editar_fecha_nac"><strong>Fecha Nacimiento</strong></label>
+                            <input class="form-control" type="date" id="editar_fecha_nac" name="fecha_nac" value="${formattedFecha}">
                         </div>
                     </div>
                 </div>
@@ -378,19 +379,18 @@
 
             const ajustesUsuarioForm = document.getElementById('editarAjustesUsuarioForm');
             ajustesUsuarioForm.innerHTML = `
-                <h3 class="text-dark mb-4">Datos de Usuario</h3>
                 <input type="hidden" name="user_id" value="${user.id}">
                 <div class="row mb-3">
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="username"><strong>Username</strong></label>
-                            <input class="form-control" type="text" id="username" name="username" value="${user.username}">
+                            <label class="form-label" for="editar_username"><strong>Username</strong></label>
+                            <input class="form-control" type="text" id="editar_username" name="username" value="${user.username}">
                         </div>
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="password"><strong>Password</strong></label>
-                            <input class="form-control" type="password" id="password" name="password" value="${user.password}">
+                            <label class="form-label" for="editar_password"><strong>Password</strong></label>
+                            <input class="form-control" type="password" id="editar_password" name="password" value="${user.password}">
                             <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()"> Mostrar contraseña
                         </div>
                     </div>
@@ -398,8 +398,8 @@
                 <div class="row mb-3">
                     <div class="col">
                         <div class="mb-3">
-                            <label class="form-label" for="rol"><strong>Rol</strong></label>
-                            <select class="form-control" id="rol" name="rol">
+                            <label class="form-label" for="editar_rol"><strong>Rol</strong></label>
+                            <select class="form-control" id="editar_rol" name="rol">
                                 <option value="encargado" ${user.rol === 'encargado' ? 'selected' : ''}>Encargado</option>
                                 <option value="empleado" ${user.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
                             </select>
@@ -411,11 +411,11 @@
             const modal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
             modal.show();
         }
-        console.log(userIdToEdit)
 
         function submitEditarDatosPersonalesForm() {
             const form = document.getElementById('editarDatosPersonalesForm');
             const formData = new FormData(form);
+            console.log(userIdToEdit)
             fetch(`/editar_datos_personales/${userIdToEdit}`, {
                 method: 'POST',
                 body: formData

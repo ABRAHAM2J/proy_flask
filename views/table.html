@@ -44,7 +44,9 @@
                     <li class="nav-item dropdown no-arrow">
                         <div class="nav-item dropdown no-arrow">
                             <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
-                                <span class="d-none d-lg-inline me-2 text-gray-600 small">{{ session['rol'] }}</span>
+                                <span class="d-none d-lg-inline me-2 text-gray-600 small">
+                                    {{ session['nombre'] }} {{ session['apellido'] }} - {{ session['rol'] }}
+                                </span>
                                 <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
                             </a>
                         </div>
@@ -308,8 +310,8 @@
     </div>
     {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/bs-init.js"></script>
-    <script src="assets/js/theme.js"></script>
+    <script src="{{ url_for('static', filename='js/bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 
 </html>

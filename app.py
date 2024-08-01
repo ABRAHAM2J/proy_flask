@@ -130,18 +130,31 @@ def login():
         conn.close()
 
         if user:
-            session['id'] = user['id']
-            session['username'] = user['username']
-            session['rol'] = user['rol']
-            session['id_persona'] = user['id_persona']
-            flash('Inicio de sesión exitoso.', 'success')
-            if user['rol'] == 'administrador':
-                return render_template('inicio.html')
-            elif user['rol'] == 'encargado' or user['rol'] == 'empleado':
-                return redirect(url_for('registro'))
+            query1 = "SELECT * FROM persona WHERE id = %s"
+            persona = get_data_from_db(query1, (user['id_persona'],))
+            if persona:
+                persona = persona[0]  # Accede al primer elemento de la lista
+
+                session['id'] = user['id']
+                session['username'] = user['username']
+                session['rol'] = user['rol']
+                session['id_persona'] = user['id_persona']
+                session['nombre'] = persona['nombre']
+                session['apellido'] = persona['apellido']
+                flash('Inicio de sesión exitoso.', 'success')
+                if user['rol'] == 'administrador':
+                    return render_template('inicio.html')
+                elif user['rol'] == 'encargado' or user['rol'] == 'empleado':
+                    return redirect(url_for('registro'))
+            else:
+                flash('Datos personales no encontrados.', 'danger')
+                return render_template('login.html')
         else:
             flash('Nombre de usuario o contraseña incorrectos.', 'danger')
             return render_template('login.html')
+
+    return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
@@ -315,6 +328,10 @@ def update_datos():
     cursor.close()
     conn.close()
 
+    # Actualizar los datos de la sesión
+    session['nombre'] = nombre
+    session['apellido'] = apellido
+
     flash('Perfil actualizado con éxito.', 'success')
     return redirect(url_for('profile'))
 
@@ -349,7 +366,7 @@ def update_user():
 
 @app.route('/register')
 def register():
-    query1 = "SELECT * FROM usuario u, persona p WHERE u.id_persona = p.id"
+    query1 = "SELECT * FROM usuario u, persona p WHERE u.id_persona = p.id AND u.rol != 'administrador'"
     usuarios = get_data_from_db(query1)
 
     return render_template('register.html', usuarios=usuarios)
@@ -419,14 +436,14 @@ def editar_datos_personales(user_id):
     telefono = request.form['telefono']
     direccion = request.form['direccion']
     fecha_nac = request.form['fecha_nac']
-    
+
     query = '''
         UPDATE persona
         SET nombre = %s, apellido = %s, ci = %s, genero = %s, email = %s, telefono = %s, direccion = %s, fecha_nac = %s
         WHERE id = %s
     '''
     params = (nombre, apellido, ci, genero, email, telefono, direccion, fecha_nac, user_id)
-    get_data_from_db(query, params)
+    execute_db_command(query, params)
     flash('Datos personales actualizados correctamente.', 'success')
     return redirect(url_for('register'))
 
@@ -442,10 +459,30 @@ def editar_ajustes_usuario(user_id):
         WHERE id_persona = %s
     '''
     params = (username, password, rol, user_id)
-    get_data_from_db(query, params)
+    execute_db_command(query, params)
     flash('Ajustes de usuario actualizados correctamente.', 'success')
     return redirect(url_for('register'))
 
+@app.route('/eliminar_user/<int:user_id>', methods=['POST'])
+def eliminar_user(user_id):
+    query_get_persona_id = 'SELECT id_persona FROM usuario WHERE id = %s'
+    result = get_data_from_db(query_get_persona_id, (user_id,))
+    if result:
+        persona_id = result[0]['id_persona']
+        
+        # Elimina el usuario
+        query_delete_user = 'DELETE FROM usuario WHERE id = %s'
+        execute_db_command(query_delete_user, (user_id,))
+        
+        # Elimina la persona asociada
+        query_delete_persona = 'DELETE FROM persona WHERE id = %s'
+        execute_db_command(query_delete_persona, (persona_id,))
+        
+        flash('Usuario y persona asociados eliminados correctamente.', 'success')
+    else:
+        flash('No se encontró el usuario.', 'danger')
+    
+    return redirect(url_for('registro'))
 
 
 
