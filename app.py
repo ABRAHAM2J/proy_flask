@@ -9,7 +9,7 @@ import pandas as pd
 from flask import (Flask, flash, jsonify, redirect, render_template, request,
                    send_file, session, url_for)
 from jinja2 import TemplateNotFound
-from keras.models import load_model
+from keras.models import load_model # type: ignore
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
@@ -182,7 +182,7 @@ def registro():
         tipo = request.form.get(f'tipo_{i}')
         color = request.form.get(f'color_{i}')
         material = request.form.get(f'material_{i}')
-        agregado = request.form.get(f'agregado_{i}')
+        agregado_id = request.form.get(f'agregado_{i}')
         cantidad = request.form.get(f'cantidad_{i}')
         precioU = request.form.get(f'precio_{i}')
         fecha = request.form.get(f'fecha_{i}')
@@ -191,15 +191,18 @@ def registro():
         color = color.split("'")[5]
         material = material.split("'")[5]
 
-        if not (tipo and color and material and agregado and cantidad and precioU and fecha):
+        if not (tipo and color and material and agregado_id and cantidad and precioU and fecha):
             flash('Todos los campos son obligatorios.', 'danger')
             return redirect(url_for('registro'))
 
+        # Obtener el nombre del agregado a partir de su id
+        agregado_nombre = get_agregado_nombre(agregado_id)
+        
         cantidad = int(cantidad)
         precioU = float(precioU)
         precioT = cantidad * precioU
 
-        ventas.append((tipo, color, material, agregado, cantidad, precioU, precioT, fecha))
+        ventas.append((tipo, color, material, agregado_nombre, cantidad, precioU, precioT, fecha))
 
     # Guardar en la base de datos
     conn = get_db_connection()
@@ -224,6 +227,12 @@ def registro():
     flash('Se han registrado las ventas.', 'success')
     return redirect(url_for('registro'))
 
+def get_agregado_nombre(agregado_id):
+    query = "SELECT nombre FROM agregados WHERE id = %s"
+    result = get_data_from_db(query, (agregado_id,))
+    return result[0]['nombre'] if result else None
+
+
 @app.route('/datos')
 def datos():
     conn = get_db_connection()
@@ -238,29 +247,35 @@ def datos():
 @app.route('/editar_venta/<int:venta_id>', methods=['GET', 'POST'])
 def editar_venta(venta_id):
     if request.method == 'POST':
-        tipo_id = request.form['tipo_id']
-        color_id = request.form['color_id']
-        material_id = request.form['material_id']
-        agregado_id = request.form['agregado_id']
-        cantidad = int(request.form['cantidad'])
-        precioU = float(request.form['precioU'])
+        tipo_json = request.form.get('tipo_1')
+        color_json = request.form.get('color_1')
+        material_json = request.form.get('material_1')
+        agregado_id = request.form['agregado_1']
+        cantidad = int(request.form['cantidad_1'])
+        precioU = float(request.form['precioU_1'])
         precioT = cantidad * precioU
-        fecha = request.form['fecha']
+        fecha = request.form['fecha_1']
+
+        tipo = json.loads(tipo_json)
+        color = json.loads(color_json)
+        material = json.loads(material_json)
+
+        tipo_nombre = tipo['nombre']
+        color_nombre = color['nombre']
+        material_nombre = material['nombre']
 
         query = """
             UPDATE ventas 
-            SET tipo_id = %s, color_id = %s, material_id = %s, agregado_id = %s, cantidad = %s, precioU = %s, precioT = %s, fecha = %s
+            SET tipo = %s, color = %s, material = %s, agregado = %s, cantidad = %s, precioU = %s, precioT = %s, fecha = %s
             WHERE id = %s
         """
-        params = (tipo_id, color_id, material_id, agregado_id, cantidad, precioU, precioT, fecha, venta_id)
-        get_data_from_db(query, params)
+        params = (tipo_nombre, color_nombre, material_nombre, agregado_id, cantidad, precioU, precioT, fecha, venta_id)
+        execute_db_command(query, params)
 
         flash('Venta actualizada correctamente.', 'success')
         return redirect(url_for('registro'))
+    return redirect(url_for('registro'))
 
-    query = 'SELECT * FROM ventas WHERE id = %s'
-    venta = get_data_from_db(query, (venta_id,))[0]
-    return render_template('editar_venta.html', venta=venta)
 
 @app.route('/eliminar_venta/<int:venta_id>', methods=['POST'])
 def eliminar_venta(venta_id):

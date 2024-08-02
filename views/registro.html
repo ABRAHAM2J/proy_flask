@@ -158,10 +158,12 @@
                                             </form>
                                             {% if session['rol'] == 'encargado' or session['rol'] == 'administrador' %}
                                             <div class="d-flex justify-content-center mt-3">
-                                                <a href="{{ url_for('prediccion') }}" class="btn btn-warning me-2">Predecir para el Día Siguiente</a>
-                                                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#fechaModal">Predecir para una Fecha Futura</button>
+                                                <a href="{{ url_for('prediccion') }}"
+                                                    class="btn btn-warning me-2">Predecir para el Día Siguiente</a>
+                                                <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                                    data-bs-target="#fechaModal">Predecir para una Fecha Futura</button>
                                             </div>
-                                            
+
                                             {% endif %}
                                         </div>
                                         <div class="card-body">
@@ -209,12 +211,13 @@
                                                             <td>{{ venta.tipo }}</td>
                                                             <td>{{ venta.color }}</td>
                                                             <td>{{ venta.material }}</td>
-                                                            <td>{{ venta.agregado }}</td>
+                                                            <td>{{ venta.agregado if venta.agregado else "Sin agregado" }}</td>
                                                             <td>{{ venta.cantidad }}</td>
                                                             <td>{{ venta.precioU }}</td>
                                                             <td>{{ venta.precioT }}</td>
                                                             <td>{{ venta.fecha }}</td>
-                                                            {% if session['rol'] == 'encargado' or session['rol'] == 'administrador' %}
+                                                            {% if session['rol'] == 'encargado' or session['rol'] ==
+                                                            'administrador' %}
                                                             <td>
                                                                 <button class="btn btn-primary btn-sm"
                                                                     onclick='openEditarModal(JSON.parse(decodeURIComponent("{{ venta | tojson | safe | urlencode }}")))'>
@@ -263,9 +266,10 @@
                 </div>
             </div>
             <!-- Modal para editar venta -->
+            <!-- Modal para editar venta -->
             <div class="modal fade" id="editarVentaModal" tabindex="-1" aria-labelledby="editarVentaModalLabel"
                 aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editarVentaModalLabel">Editar Venta</h5>
@@ -273,7 +277,7 @@
                         </div>
                         <div class="modal-body">
                             <form id="editarVentaForm">
-                                <!-- Los campos del formulario se llenarán con JavaScript -->
+                                <!-- El contenido del formulario será dinámico -->
                             </form>
                         </div>
                         <div class="modal-footer">
@@ -284,6 +288,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- Modal para confirmar eliminación -->
             <div class="modal fade" id="eliminarVentaModal" tabindex="-1" aria-labelledby="eliminarVentaModalLabel"
@@ -329,10 +334,13 @@
         });
 
         const agregadosPorTipo = JSON.parse('{{ agregados_por_tipo | tojson | safe }}');
+        const tipos = JSON.parse('{{ tipos | tojson | safe }}');
+        const colores = JSON.parse('{{ colores | tojson | safe }}');
+        const materiales = JSON.parse('{{ materiales | tojson | safe }}');
 
         function updateAgregado(select, index) {
             const agregadoSelect = document.getElementById(`agregado_${index}`);
-            const tipo = select.value.split("'")[5].split(' ')[0];
+            const tipo = select.value.split(/['"]/)[5].split(' ')[0];
             const agregados = agregadosPorTipo[tipo] || [];
 
             agregados.unshift({ id: '', nombre: 'Sin agregado' });// Asegura que siempre haya una opción 'Sin agregado'
@@ -349,6 +357,7 @@
             agregadoSelect.selectedIndex = 1;
         }
 
+
         function updatePrice(index) {
             const tipoId = document.getElementById(`tipo_${index}`).value;
             const colorId = document.getElementById(`color_${index}`).value;
@@ -360,11 +369,10 @@
                 if (!agregadoId) {
                     v = -1
                 }
-                console.log(v)
 
-                const x = tipoId.split("'")[2].split(" ")[1].split(",")[0]
-                const y = colorId.split("'")[2].split(" ")[1].split(",")[0]
-                const z = materialId.split("'")[2].split(" ")[1].split(",")[0]
+                const x = tipoId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]
+                const y = colorId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]
+                const z = materialId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]
 
                 fetch("{{ url_for('get_price') }}", {
                     method: "POST",
@@ -414,43 +422,68 @@
             const formattedFecha = formatDate(venta.fecha);
             const form = document.getElementById('editarVentaForm');
             form.innerHTML = `
-            <input type="hidden" name="venta_id" value="${venta.id}">
-            <div class="mb-3">
-                <label for="tipo" class="form-label">Tipo</label>
-                <input type="text" class="form-control" id="tipo" name="tipo" value="${venta.tipo}">
-            </div>
-            <div class="mb-3">
-                <label for="color" class="form-label">Color</label>
-                <input type="text" class="form-control" id="color" name="color" value="${venta.color}">
-            </div>
-            <div class="mb-3">
-                <label for="material" class="form-label">Material</label>
-                <input type="text" class="form-control" id="material" name="material" value="${venta.material}">
-            </div>
-            <div class="mb-3">
-                <label for="agregado" class="form-label">Agregado</label>
-                <input type="text" class="form-control" id="agregado" name="agregado" value="${venta.agregado}">
-            </div>
-            <div class="mb-3">
-                <label for="cantidad" class="form-label">Cantidad</label>
-                <input type="number" class="form-control" id="cantidad" name="cantidad" value="${venta.cantidad}">
-            </div>
-            <div class="mb-3">
-                <label for="precioU" class="form-label">Precio Unitario</label>
-                <input type="text" class="form-control" id="precioU" name="precioU" value="${venta.precioU}">
-            </div>
-            <div class="mb-3">
-                <label for="fecha" class="form-label">Fecha</label>
-                <input type="date" class="form-control" id="fecha" name="fecha" value="${formattedFecha}">
-            </div>
-        `;
+                <input type="hidden" name="venta_id" value="${venta.id}">
+                <div class="mb-3">
+                    <label for="tipo_1" class="form-label">Tipo</label>
+                    <select class="form-control" id="tipo_1" name="tipo_1" onchange="updateAgregado(this, 1); updatePrice(1);">
+                        <option value="">Seleccionar</option>
+                        ${tipos.map(tipo => `<option value='${JSON.stringify(tipo)}' ${tipo.nombre === venta.tipo ? 'selected' : ''}>${tipo.nombre}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="color_1" class="form-label">Color</label>
+                    <select class="form-control" id="color_1" name="color_1" onchange="updatePrice(1);">
+                        <option value="">Seleccionar</option>
+                        ${colores.map(color => `<option value='${JSON.stringify(color)}' ${color.nombre === venta.color ? 'selected' : ''}>${color.nombre}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="material_1" class="form-label">Material</label>
+                    <select class="form-control" id="material_1" name="material_1" onchange="updatePrice(1);">
+                        <option value="">Seleccionar</option>
+                        ${materiales.map(material => `<option value='${JSON.stringify(material)}' ${material.nombre === venta.material ? 'selected' : ''}>${material.nombre}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="agregado_1" class="form-label">Agregado</label>
+                    <select class="form-control" id="agregado_1" name="agregado_1" onchange="updatePrice(1);">
+                        <option value="">Seleccionar</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="cantidad_1" class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="cantidad_1" name="cantidad_1" value="${venta.cantidad}">
+                </div>
+                <div class="mb-3">
+                    <label for="precioU_1" class="form-label">Precio Unitario</label>
+                    <input type="text" class="form-control" id="precioU_1" name="precioU_1" value="${venta.precioU}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="fecha_1" class="form-label">Fecha</label>
+                    <input type="date" class="form-control" id="fecha_1" name="fecha_1" value="${formattedFecha}">
+                </div>
+            `;
+
             const modal = new bootstrap.Modal(document.getElementById('editarVentaModal'));
             modal.show();
+
+            const tipoSelect = document.getElementById('tipo_1');
+            updateAgregado(tipoSelect, 1);
+
+            setTimeout(() => {
+                const agregadoSelect = document.getElementById('agregado_1');
+                const agregadoOption = Array.from(agregadoSelect.options).find(option => option.textContent === venta.agregado);
+                if (agregadoOption) {
+                    agregadoSelect.value = agregadoOption.value;
+                }
+            }, 100);
         }
+
 
         function submitEditarForm() {
             const form = document.getElementById('editarVentaForm');
             const formData = new FormData(form);
+
             fetch(`/editar_venta/${ventaIdToEdit}`, {
                 method: 'POST',
                 body: formData
@@ -462,6 +495,7 @@
                 }
             });
         }
+
 
         function openEliminarModal(ventaId) {
             ventaIdToDelete = ventaId;
