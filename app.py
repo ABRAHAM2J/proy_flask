@@ -500,6 +500,35 @@ def eliminar_user(user_id):
     return redirect(url_for('registro'))
 
 
+@app.route('/inventario')
+def inventario():
+    query1 = "SELECT * FROM tipos"
+    tipos = get_data_from_db(query1)
+
+    query2 = "SELECT * FROM colores"
+    colores = get_data_from_db(query2)
+
+    query3 = "SELECT * FROM materiales"
+    materiales = get_data_from_db(query3)
+
+    query4 = "SELECT * FROM agregados"
+    agregados_data = get_data_from_db(query4)
+
+    agregados_por_tipo = {}
+    for agregado in agregados_data:
+        tipo_id = agregado['tipo']
+        agregado_id = agregado['id']
+        nombre = agregado['nombre']
+        if tipo_id not in agregados_por_tipo:
+            agregados_por_tipo[tipo_id] = []
+        agregados_por_tipo[tipo_id].append({'id': agregado_id, 'nombre': nombre})
+
+    query5 = "SELECT * FROM ventas"
+    ventas = get_data_from_db(query5)
+
+    query6 = "SELECT pc.id, pc.tipo_id, t.nombre as 'n_tipo', pc.color_id, c.nombre as 'n_color', pc.material_id, m.nombre as 'n_material', pc.agregado_id, a.nombre as 'n_agregado', pc.stock, pc.precioU FROM producto_combinaciones pc, tipos t, colores c, materiales m, agregados a WHERE pc.tipo_id = t.id AND pc.color_id = c.id AND pc.material_id = m.id AND pc.agregado_id = a.id"
+    inventarios = get_data_from_db(query6)
+    return render_template('table.html', inventarios=inventarios, tipos=tipos, colores=colores, materiales=materiales, agregados_por_tipo=agregados_por_tipo, ventas=ventas)
 
 
 

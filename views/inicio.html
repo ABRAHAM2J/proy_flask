@@ -23,14 +23,14 @@
                     {% if session['rol'] == 'administrador' %}
                     <li class="nav-item"><a class="nav-link active" href="inicio.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('inventario') }}"><i class="fas fa-table"></i><span>Inventario</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i class="fas fa-user-circle"></i><span>Registro Usuarios</span></a></li>
                     {% elif session['rol'] == 'encargado' %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('inventario') }}"><i class="fas fa-table"></i><span>Inventario</span></a></li>
                     {% elif session['rol'] == 'empleado' %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="table.html"><i class="fas fa-table"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('inventario') }}"><i class="fas fa-table"></i><span>Inventario</span></a></li>
                     {% endif %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}"><i class="fas fa-user"></i><span>Profile</span></a></li> 
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-arrow-right"></i><span>Cerrar Sesión</span></a></li>
