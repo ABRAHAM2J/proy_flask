@@ -163,7 +163,7 @@ def login():
                 session['apellido'] = persona['apellido']
                 flash('Inicio de sesión exitoso.', 'success')
                 if user['rol'] == 'administrador':
-                    return render_template('inicio.html')
+                    return redirect(url_for('dashboard'))
                 elif user['rol'] == 'encargado' or user['rol'] == 'empleado':
                     return redirect(url_for('registro'))
             else:
