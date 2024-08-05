@@ -80,14 +80,34 @@ def get_price():
     material_id = data.get('material_id')
     agregado_id = data.get('agregado_id')
 
-    query = "SELECT precioU FROM producto_combinaciones WHERE tipo_id = %s AND color_id = %s AND material_id = %s AND agregado_id = %s"
+    query = "SELECT id, activo, precioU, stock FROM producto_combinaciones WHERE tipo_id = %s AND color_id = %s AND material_id = %s AND agregado_id = %s"
     params = (tipo_id, color_id, material_id, agregado_id)
     result = get_data_from_db(query, params)
 
+    print(result)
+
     if result:
-        return jsonify(precioU=result[0]['precioU'])
+        return jsonify(result[0])
     else:
-        return jsonify(precioU=None), 404
+        return jsonify(None), 404
+
+@app.route('/editar_inventario', methods=['POST'])
+def editar_inventario():
+    producto_id = request.form['producto_id']
+    stock = request.form['stock_1']
+    precioU = request.form['precio_1']
+
+    # Actualizar la base de datos
+    query = """
+        UPDATE producto_combinaciones
+        SET stock = %s, precioU = %s
+        WHERE id = %s
+    """
+    params = (stock, precioU, producto_id)
+    execute_db_command(query, params)
+
+    return jsonify({'success': True})
+
 
 
 
@@ -192,8 +212,7 @@ def registro():
         material = material.split("'")[5]
 
         if not (tipo and color and material and agregado_id and cantidad and precioU and fecha):
-            flash('Todos los campos son obligatorios.', 'danger')
-            return redirect(url_for('registro'))
+            return jsonify({'status': 'error', 'message': 'Todos los campos son obligatorios.'}), 400
 
         # Obtener el nombre del agregado a partir de su id
         agregado_nombre = get_agregado_nombre(agregado_id)
@@ -204,16 +223,23 @@ def registro():
 
         ventas.append((tipo, color, material, agregado_nombre, cantidad, precioU, precioT, fecha))
 
-    # Guardar en la base de datos
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.executemany("""
-        INSERT INTO ventas (tipo, color, material, agregado, cantidad, precioU, precioT, fecha)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, ventas)
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        # Guardar en la base de datos
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.executemany("""
+            INSERT INTO ventas (tipo, color, material, agregado, cantidad, precioU, precioT, fecha)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, ventas)
+        conn.commit()
+    except mysql.connector.Error as err:
+        if err.errno == 1644:  # Error personalizado para stock insuficiente
+            return jsonify({'status': 'error', 'message': 'Stock insuficiente para la venta.'}), 400
+        else:
+            return jsonify({'status': 'error', 'message': 'Ocurrió un error al registrar las ventas. Por favor, intente nuevamente.'}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
     # Generar IDs para el archivo CSV
     ids = list(range(1, len(ventas) + 1))
@@ -224,8 +250,7 @@ def registro():
     filename = get_next_filename()
     ventas_df.to_csv(filename, index=False)
 
-    flash('Se han registrado las ventas.', 'success')
-    return redirect(url_for('registro'))
+    return jsonify({'status': 'success', 'message': 'Se han registrado las ventas.'})
 
 def get_agregado_nombre(agregado_id):
     query = "SELECT nombre FROM agregados WHERE id = %s"
@@ -526,13 +551,91 @@ def inventario():
     query5 = "SELECT * FROM ventas"
     ventas = get_data_from_db(query5)
 
-    query6 = "SELECT pc.id, pc.tipo_id, t.nombre as 'n_tipo', pc.color_id, c.nombre as 'n_color', pc.material_id, m.nombre as 'n_material', pc.agregado_id, a.nombre as 'n_agregado', pc.stock, pc.precioU FROM producto_combinaciones pc, tipos t, colores c, materiales m, agregados a WHERE pc.tipo_id = t.id AND pc.color_id = c.id AND pc.material_id = m.id AND pc.agregado_id = a.id"
+    query6 = "SELECT pc.activo, pc.id, pc.tipo_id, t.nombre as 'n_tipo', pc.color_id, c.nombre as 'n_color', pc.material_id, m.nombre as 'n_material', pc.agregado_id, a.nombre as 'n_agregado', pc.stock, pc.precioU FROM producto_combinaciones pc, tipos t, colores c, materiales m, agregados a WHERE pc.tipo_id = t.id AND pc.color_id = c.id AND pc.material_id = m.id AND pc.agregado_id = a.id"
     inventarios = get_data_from_db(query6)
     return render_template('table.html', inventarios=inventarios, tipos=tipos, colores=colores, materiales=materiales, agregados_por_tipo=agregados_por_tipo, ventas=ventas)
 
 
+@app.route('/toggle_inventario/<int:producto_id>', methods=['POST'])
+def toggle_inventario(producto_id):
+    data = request.json
+    nuevo_estado = data['activo']
+    query = "UPDATE producto_combinaciones SET activo = %s WHERE id = %s"
+    params = (nuevo_estado, producto_id)
+    execute_db_command(query, params)
+    return jsonify({'success': True})
 
 
+@app.route('/update_product', methods=['POST'])
+def update_product():
+    try:
+        stock = request.form.get('stock_0', type=int)
+        precio_unitario = request.form.get('precio_0', type=float)
+        product_id = request.form.get('id_0', type=int)
+
+        query = "UPDATE producto_combinaciones SET stock = %s, precioU = %s WHERE id = %s"
+        params = (stock, precio_unitario, product_id)
+        execute_db_command(query, params)
+
+        return jsonify({'message': 'Producto actualizado correctamente.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/check_product_status', methods=['POST'])
+def check_product_status():
+    data = request.get_json()
+    tipo_id = data['tipo_id']
+    color_id = data['color_id']
+    material_id = data['material_id']
+    agregado_id = data['agregado_id']
+
+    query = """
+        SELECT activo FROM producto_combinaciones
+        WHERE tipo_id = %s AND color_id = %s AND material_id = %s AND agregado_id = %s
+    """
+    params = (tipo_id, color_id, material_id, agregado_id)
+    result = get_data_from_db(query, params)
+
+    if result and result[0]['activo']:
+        return jsonify(is_active=True)
+    else:
+        return jsonify(is_active=False)
+
+@app.route('/dashboard')
+def dashboard():
+    # Consulta para obtener el número de usuarios registrados
+    query_usuarios = "SELECT COUNT(*) AS total_usuarios FROM usuario"
+    total_usuarios = get_data_from_db(query_usuarios)[0]['total_usuarios']
+
+    # Consulta para obtener el número de ventas hechas
+    query_ventas = "SELECT COUNT(*) AS total_ventas FROM ventas"
+    total_ventas = get_data_from_db(query_ventas)[0]['total_ventas']
+
+    # Consulta para obtener el número de productos en el inventario
+    query_productos = "SELECT COUNT(*) AS total_productos FROM producto_combinaciones WHERE stock > 0"
+    total_productos = get_data_from_db(query_productos)[0]['total_productos']
+
+    # Consulta para obtener las ventas hechas en los últimos 5 días
+    query_ventas_ultimos_5_dias = """
+        SELECT fecha, COUNT(*) AS ventas_por_dia 
+        FROM ventas 
+        WHERE fecha >= DATE_SUB(CURDATE(), INTERVAL 5 DAY)
+        GROUP BY fecha
+    """
+    ventas_ultimos_5_dias = get_data_from_db(query_ventas_ultimos_5_dias)
+
+    # Consulta para obtener la cantidad de encargados y empleados
+    query_usuarios_roles = "SELECT rol, COUNT(*) AS total FROM usuario WHERE rol != 'administrador' GROUP BY rol"
+    usuarios_roles = get_data_from_db(query_usuarios_roles)
+    
+    roles_data = {role['rol']: role['total'] for role in usuarios_roles}
+
+    return render_template('inicio.html', 
+                           total_usuarios=total_usuarios, 
+                           total_ventas=total_ventas, 
+                           total_productos=total_productos,
+                           ventas_ultimos_5_dias=ventas_ultimos_5_dias,
+                           roles_data=roles_data)
 
 
 

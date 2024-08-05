@@ -25,7 +25,7 @@
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
                     {% if session['rol'] == 'administrador' %}
-                    <li class="nav-item"><a class="nav-link active" href="inicio.html"><i
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('dashboard') }}"><i
                                 class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
                                 class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
@@ -63,7 +63,7 @@
                                 <span class="d-none d-lg-inline me-2 text-gray-600 small">
                                     {{ session['nombre'] }} {{ session['apellido'] }} - {{ session['rol'] }}
                                 </span>
-                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
+                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image.jpeg">
                             </a>
                         </div>
                     </li>

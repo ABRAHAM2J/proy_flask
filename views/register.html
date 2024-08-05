@@ -25,7 +25,7 @@
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
                     {% if session['rol'] == 'administrador' %}
-                    <li class="nav-item"><a class="nav-link active" href="inicio.html"><i
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('dashboard') }}"><i
                                 class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
                                 class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
@@ -63,7 +63,7 @@
                                 <span class="d-none d-lg-inline me-2 text-gray-600 small">
                                     {{ session['nombre'] }} {{ session['apellido'] }} - {{ session['rol'] }}
                                 </span>
-                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
+                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image.jpeg">
                             </a>
                         </div>
                     </li>
@@ -88,18 +88,18 @@
                                                         <div class="mb-3"><label class="form-label"
                                                                 for="nombre"><strong>Nombres</strong></label><input
                                                                 class="form-control" type="text" id="nombre"
-                                                                name="nombre"></div>
+                                                                name="nombre" required></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3"><label class="form-label"
                                                                 for="apellido"><strong>Apellidos</strong></label><input
                                                                 class="form-control" type="text" id="apellido"
-                                                                name="apellido"></div>
+                                                                name="apellido" required></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3"><label class="form-label"
                                                                 for="ci"><strong>C.I.</strong></label><input
-                                                                class="form-control" type="text" id="ci" name="ci">
+                                                                class="form-control" type="text" id="ci" name="ci" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -108,7 +108,7 @@
                                                         <div class="mb-3">
                                                             <label class="form-label"
                                                                 for="genero"><strong>Genero</strong></label>
-                                                            <select class="form-control" id="genero" name="genero">
+                                                            <select class="form-control" id="genero" name="genero" required>
                                                                 <option value="encargado">Masculino</option>
                                                                 <option value="empleado">Femenino</option>
                                                             </select>
@@ -118,13 +118,13 @@
                                                         <div class="mb-3"><label class="form-label"
                                                                 for="email"><strong>Email</strong></label><input
                                                                 class="form-control" type="text" id="email"
-                                                                name="email"></div>
+                                                                name="email" required></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3"><label class="form-label"
                                                                 for="telefono"><strong>Telefono</strong></label><input
                                                                 class="form-control" type="text" id="telefono"
-                                                                name="telefono"></div>
+                                                                name="telefono" required></div>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -132,20 +132,20 @@
                                                         <div class="mb-3"><label class="form-label"
                                                                 for="direccion"><strong>Direccion</strong></label><input
                                                                 class="form-control" type="text" id="direccion"
-                                                                name="direccion"></div>
+                                                                name="direccion" required></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3"><label class="form-label"
                                                                 for="fecha_nac"><strong>Fecha
                                                                     Nacimiento</strong></label><input
                                                                 class="form-control" type="date" id="fecha_nac"
-                                                                name="fecha_nac"></div>
+                                                                name="fecha_nac" required></div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="mb-3">
                                                             <label class="form-label"
                                                                 for="rol"><strong>Rol</strong></label>
-                                                            <select class="form-control" id="rol" name="rol">
+                                                            <select class="form-control" id="rol" name="rol" required>
                                                                 <option value="encargado">Encargado</option>
                                                                 <option value="empleado">Empleado</option>
                                                             </select>
@@ -234,7 +234,6 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editarUsuarioModalLabel">Editar Usuario</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -320,6 +319,9 @@
 
             const datosPersonalesForm = document.getElementById('editarDatosPersonalesForm');
             datosPersonalesForm.innerHTML = `
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarUsuarioModalLabel">Editar Datos Personales</h5>
+                </div>
                 <input type="hidden" name="user_id" value="${user.id}">
                 <div class="row mb-3">
                     <div class="col">
@@ -379,7 +381,9 @@
 
             const ajustesUsuarioForm = document.getElementById('editarAjustesUsuarioForm');
             ajustesUsuarioForm.innerHTML = `
-                <input type="hidden" name="user_id" value="${user.id}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarUsuarioModalLabel">Editar Usuario</h5>
+                </div>
                 <div class="row mb-3">
                     <div class="col">
                         <div class="mb-3">

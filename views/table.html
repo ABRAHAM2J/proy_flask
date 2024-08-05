@@ -25,23 +25,23 @@
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
                     {% if session['rol'] == 'administrador' %}
-                    <li class="nav-item"><a class="nav-link active" href="inicio.html"><i
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('dashboard') }}"><i
                                 class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
                                 class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="table.html"><i
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('inventario') }}"><i
                                 class="fas fa-table"></i><span>Inventario</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i
                                 class="fas fa-user-circle"></i><span>Registro Usuarios</span></a></li>
                     {% elif session['rol'] == 'encargado' %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
                                 class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="table.html"><i
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('inventario') }}"><i
                                 class="fas fa-table"></i><span>Inventario</span></a></li>
                     {% elif session['rol'] == 'empleado' %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
                                 class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="table.html"><i
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('inventario') }}"><i
                                 class="fas fa-table"></i><span>Inventario</span></a></li>
                     {% endif %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}"><i
@@ -63,7 +63,7 @@
                                 <span class="d-none d-lg-inline me-2 text-gray-600 small">
                                     {{ session['nombre'] }} {{ session['apellido'] }} - {{ session['rol'] }}
                                 </span>
-                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
+                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image.jpeg">
                             </a>
                         </div>
                     </li>
@@ -81,7 +81,7 @@
                                             <p class="text-primary m-0 fw-bold">Producto</p>
                                         </div>
                                         <div class="card-body">
-                                            <form id="ventas-form" action="{{ url_for('registro') }}" method="post">
+                                            <form id="ventas-form">
                                                 <input type="hidden" name="num_ventas" id="num_ventas" value="1">
                                                 <div class="container">
                                                     <div class="row">
@@ -130,10 +130,6 @@
                                                     </div>
                                                     <hr>
                                                 </div>
-                                                <div class="mt-3 text-center">
-                                                    <button type="submit" class="btn btn-primary">Buscar
-                                                        Producto</button>
-                                                </div>
                                             </form>
                                         </div>
 
@@ -141,8 +137,9 @@
                                             <p class="text-primary m-0 fw-bold">Stock - Precio Unitario</p>
                                         </div>
                                         <div class="card-body">
-                                            <form id="ventas-form" action="" method="post">
-                                                <input type="hidden" name="num_ventas" id="num_ventas" value="1">
+                                            <form id="actualizar-form" action="{{ url_for('update_product') }}"
+                                                method="post">
+                                                <input type="hidden" name="id_0" id="id_0">
                                                 <div class="container">
                                                     <div class="row">
                                                         <div class="col">
@@ -155,11 +152,20 @@
                                                             <input type="text" class="form-control" id="precio_0"
                                                                 name="precio_0">
                                                         </div>
+                                                        <!-- Botones de Acciones -->
+                                                        {% if session['rol'] == 'encargado' or session['rol'] ==
+                                                        'administrador' %}
                                                         <div class="col">
                                                             <div class="mt-3 text-center">
-                                                                <button type="submit" class="btn btn-warning">Actualizar</button>
+                                                                <button type="submit"
+                                                                    class="btn btn-primary">Actualizar</button>
+                                                                <button type="button" id="toggle_0"
+                                                                    class="btn btn-success"
+                                                                    style="display:none;">Activar</button>
                                                             </div>
                                                         </div>
+                                                        {% endif %}
+
                                                     </div>
                                                 </div>
                                             </form>
@@ -204,24 +210,30 @@
                                                             <td>{{ inv.n_tipo }}</td>
                                                             <td>{{ inv.n_color }}</td>
                                                             <td>{{ inv.n_material }}</td>
-                                                            <td>{{ inv.n_agregado }}</td>
+                                                            <td>{{ inv.n_agregado or 'Sin agregado' }}</td>
                                                             <td>{{ inv.stock }}</td>
                                                             <td>{{ inv.precioU }}</td>
                                                             {% if session['rol'] == 'encargado' or session['rol'] ==
                                                             'administrador' %}
                                                             <td>
-                                                                <button class="btn btn-primary btn-sm">
+                                                                <button class="btn btn-primary btn-sm"
+                                                                    onclick='openEditarModal(JSON.parse(decodeURIComponent("{{ inv | tojson | safe | urlencode }}")))'>
                                                                     <i class="fas fa-pencil-alt"></i>
                                                                 </button>
+
                                                                 {% if session['rol'] == 'administrador' %}
-                                                                <button class="btn btn-danger btn-sm"><i
-                                                                        class="fas fa-trash-alt"></i>
+                                                                <button
+                                                                    class="btn btn-sm {{ 'btn-warning' if inv.activo else 'btn-success' }}"
+                                                                    onclick='toggleProductoActivo(JSON.parse(decodeURIComponent("{{ inv | tojson | safe | urlencode }}")))'>
+                                                                    {{ 'Desactivar' if inv.activo else 'Activar' }}
                                                                 </button>
                                                                 {% endif %}
+
                                                             </td>
                                                             {% endif %}
                                                         </tr>
                                                         {% endfor %}
+
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -233,6 +245,25 @@
                     </div>
                 </div>
             </div>
+
+
+            <!-- Modal Contenedor -->
+            <div class="modal fade" id="editarProductoModal" tabindex="-1" aria-labelledby="editarProductoModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editarProductoModalLabel">Editar Producto</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editarProductoForm" method="post" action="/editar_inventario"></form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             <footer class="bg-white sticky-footer">
                 <div class="container my-auto">
                     <div class="text-center my-auto copyright"><span>IZI</span></div>
@@ -256,9 +287,9 @@
         });
 
         const agregadosPorTipo = JSON.parse('{{ agregados_por_tipo | tojson | safe }}');
-        // const tipos = JSON.parse('{{ tipos | tojson | safe }}');
-        // const colores = JSON.parse('{{ colores | tojson | safe }}');
-        // const materiales = JSON.parse('{{ materiales | tojson | safe }}');
+        const tipos = JSON.parse('{{ tipos | tojson | safe }}');
+        const colores = JSON.parse('{{ colores | tojson | safe }}');
+        const materiales = JSON.parse('{{ materiales | tojson | safe }}');
 
         function updateAgregado(select, index) {
             const agregadoSelect = document.getElementById(`agregado_${index}`);
@@ -287,14 +318,14 @@
             const agregadoId = document.getElementById(`agregado_${index}`).value;
 
             if (tipoId && colorId && materialId) {
-                let v = agregadoId
+                let v = agregadoId;
                 if (!agregadoId) {
-                    v = -1
+                    v = -1;
                 }
 
-                const x = tipoId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]
-                const y = colorId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]
-                const z = materialId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]
+                const x = tipoId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0];
+                const y = colorId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0];
+                const z = materialId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0];
 
                 fetch("{{ url_for('get_price') }}", {
                     method: "POST",
@@ -310,16 +341,142 @@
                 })
                     .then(response => response.json())
                     .then(data => {
+                        const id = document.getElementById(`id_${index}`);
                         const precioUInput = document.getElementById(`precio_${index}`);
-                        if (data.precioU !== null) {
+                        const stockInput = document.getElementById(`stock_${index}`);
+                        const toggleButton = document.getElementById(`toggle_${index}`);
+
+                        if (data.precioU !== null && data.stock !== null && data.activo != null && data.id) {
+                            id.value = data.id
                             precioUInput.value = data.precioU;
+                            stockInput.value = data.stock;
+                            toggleButton.innerHTML = data.activo ? 'Desactivar' : 'Activar';
+                            toggleButton.className = data.activo ? 'btn btn-warning' : 'btn btn-success';
+                            toggleButton.onclick = () => toggleProductoActivo(data);
+                            toggleButton.style.display = 'inline-block'; // Show the button
                         } else {
                             precioUInput.value = 'No disponible';
+                            stockInput.value = 'No disponible';
+                            toggleButton.style.display = 'none';
                         }
                     })
                     .catch(error => console.error('Error:', error));
             }
         }
+
+        function openEditarModal(producto) {
+            const form = document.getElementById('editarProductoForm');
+            form.innerHTML = `
+            <input type="hidden" name="producto_id" value="${producto.id}">
+            <div class="mb-3">
+                <label for="tipo_1" class="form-label">Tipo: </label>
+                <span style="color:blue;">${producto.n_tipo}</span>
+            </div>
+            <div class="mb-3">
+                <label for="color_1" class="form-label">Color</label>
+                <span style="color:blue;">${producto.n_color}</span>
+            </div>
+            <div class="mb-3">
+                <label for="material_1" class="form-label">Material</label>
+                <span style="color:blue;">${producto.n_material}</span>
+            </div>
+            <div class="mb-3">
+                <label for="agregado_1" class="form-label">Agregado</label>
+                <span style="color:blue;">${producto.n_agregado}</span>
+            </div>
+            <div class="mb-3">
+                <label for="stock_1" class="form-label">Stock</label>
+                <input type="number" class="form-control" id="stock_1" name="stock_1" value="${producto.stock}">
+            </div>
+            <div class="mb-3">
+                <label for="precio_1" class="form-label">Precio Unitario</label>
+                <input type="text" class="form-control" id="precio_1" name="precio_1" value="${producto.precioU}">
+            </div>
+            <div class="mt-3 text-center">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        `;
+
+            const modal = new bootstrap.Modal(document.getElementById('editarProductoModal'));
+            modal.show();
+        }
+
+        document.getElementById('editarProductoForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            fetch('/editar_inventario', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Cierra el modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editarProductoModal'));
+                        modal.hide();
+                        // Actualiza la tabla o recarga la página
+                        location.reload();
+                    } else {
+                        alert('Error al guardar los cambios.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+
+        function toggleProductoActivo(producto) {
+            const confirmToggle = confirm(`¿Está seguro de que desea ${producto.activo ? 'desactivar' : 'activar'} este producto?`);
+            if (confirmToggle) {
+                fetch(`/toggle_inventario/${producto.id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ activo: !producto.activo })
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Error al cambiar el estado del producto');
+                    }
+                });
+            }
+        }
+
+        document.getElementById('actualizar-form').addEventListener('submit', function (event) {
+            event.preventDefault(); // Previene el envío del formulario
+
+            const formData = new FormData(this);
+
+            fetch("{{ url_for('update_product') }}", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error:', data.error);
+                        alert('Error: ' + data.error);
+                    } else {
+                        alert('Producto actualizado correctamente.');
+                        location.reload(); // Recarga la página para reflejar los cambios
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error: ' + error);
+                });
+        });
+
+
+
+
+
+
+
     </script>
 </body>
 

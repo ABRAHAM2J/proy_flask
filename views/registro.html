@@ -26,7 +26,7 @@
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
                     {% if session['rol'] == 'administrador' %}
-                    <li class="nav-item"><a class="nav-link active" href="inicio.html"><i
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('dashboard') }}"><i
                                 class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('registro') }}"><i
                                 class="fas fa-money-bill-wave"></i><span>Registrar Ventas</span></a></li>
@@ -65,7 +65,7 @@
                                 <span class="d-none d-lg-inline me-2 text-gray-600 small">
                                     {{ session['nombre'] }} {{ session['apellido'] }} - {{ session['rol'] }}
                                 </span>
-                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image2.jpeg">
+                                <img class="border rounded-circle img-profile" src="../static/img/dogs/image.jpeg">
                             </a>
                         </div>
                     </li>
@@ -83,7 +83,7 @@
                                             <p class="text-primary m-0 fw-bold">Venta</p>
                                         </div>
                                         <div class="card-body">
-                                            <form id="ventas-form" action="{{ url_for('registro') }}" method="post">
+                                            <form id="ventas-form">
                                                 <input type="hidden" name="num_ventas" id="num_ventas" value="1">
                                                 <div class="container">
                                                     <div id="venta_0">
@@ -91,7 +91,7 @@
                                                             <div class="col">
                                                                 <label for="tipo_0">Tipo</label>
                                                                 <select class="form-control" id="tipo_0" name="tipo_0"
-                                                                    onchange="updateAgregado(this, 0); updatePrice(0);">
+                                                                    onchange="updateAgregado(this, 0); updatePrice(0); checkProductStatus(0);" required>
                                                                     <option value="">Seleccionar</option>
                                                                     {% for tipo in tipos %}
                                                                     <option value="{{ tipo }}">{{ tipo.nombre }}
@@ -102,7 +102,7 @@
                                                             <div class="col">
                                                                 <label for="color_0">Color</label>
                                                                 <select class="form-control" id="color_0" name="color_0"
-                                                                    onchange="updatePrice(0);">
+                                                                    onchange="updatePrice(0); checkProductStatus(0);" required>
                                                                     <option value="">Seleccionar</option>
                                                                     {% for color in colores %}
                                                                     <option value="{{ color }}">{{ color.nombre }}
@@ -115,7 +115,8 @@
                                                             <div class="col">
                                                                 <label for="material_0">Material</label>
                                                                 <select class="form-control" id="material_0"
-                                                                    name="material_0" onchange="updatePrice(0);">
+                                                                    name="material_0"
+                                                                    onchange="updatePrice(0); checkProductStatus(0);" required>
                                                                     <option value="">Seleccionar</option>
                                                                     {% for material in materiales %}
                                                                     <option value="{{ material }}">{{ material.nombre }}
@@ -126,7 +127,8 @@
                                                             <div class="col">
                                                                 <label for="agregado_0">Agregado</label>
                                                                 <select class="form-control" id="agregado_0"
-                                                                    name="agregado_0" onchange="updatePrice(0);">
+                                                                    name="agregado_0"
+                                                                    onchange="updatePrice(0); checkProductStatus(0);" required>
                                                                     <option value="">Seleccionar</option>
                                                                 </select>
                                                             </div>
@@ -135,7 +137,7 @@
                                                             <div class="col">
                                                                 <label for="cantidad_0">Cantidad</label>
                                                                 <input type="number" class="form-control"
-                                                                    id="cantidad_0" name="cantidad_0" min="1" max="10">
+                                                                    id="cantidad_0" name="cantidad_0" min="1" max="10" required>
                                                             </div>
                                                             <div class="col">
                                                                 <label for="precio_0">Precio Unitario</label>
@@ -145,15 +147,15 @@
                                                             <div class="col">
                                                                 <label for="fecha_0">Fecha</label>
                                                                 <input type="date" class="form-control" id="fecha_0"
-                                                                    name="fecha_0" value="{{ fecha_hoy }}">
+                                                                    name="fecha_0" value="{{ fecha_hoy }}" required>
                                                             </div>
                                                         </div>
                                                         <hr>
                                                     </div>
                                                 </div>
                                                 <div class="mt-3 text-center">
-                                                    <button type="submit" class="btn btn-primary">Registrar
-                                                        Venta</button>
+                                                    <button type="submit" class="btn btn-primary"
+                                                        onclick="submitVentasForm()">Registrar Venta</button>
                                                 </div>
                                             </form>
                                             {% if session['rol'] == 'encargado' or session['rol'] == 'administrador' %}
@@ -163,9 +165,9 @@
                                                 <button type="button" class="btn btn-info" data-bs-toggle="modal"
                                                     data-bs-target="#fechaModal">Predecir para una Fecha Futura</button>
                                             </div>
-
                                             {% endif %}
                                         </div>
+
                                         <div class="card-body">
 
                                         </div>
@@ -211,7 +213,8 @@
                                                             <td>{{ venta.tipo }}</td>
                                                             <td>{{ venta.color }}</td>
                                                             <td>{{ venta.material }}</td>
-                                                            <td>{{ venta.agregado if venta.agregado else "Sin agregado" }}</td>
+                                                            <td>{{ venta.agregado if venta.agregado else "Sin agregado"
+                                                                }}</td>
                                                             <td>{{ venta.cantidad }}</td>
                                                             <td>{{ venta.precioU }}</td>
                                                             <td>{{ venta.precioT }}</td>
@@ -332,6 +335,75 @@
                 todayHighlight: true
             });
         });
+
+        async function checkProductStatus(index) {
+            const tipoId = document.getElementById(`tipo_${index}`).value;
+            const colorId = document.getElementById(`color_${index}`).value;
+            const materialId = document.getElementById(`material_${index}`).value;
+            const agregadoId = document.getElementById(`agregado_${index}`).value;
+
+            if (tipoId && colorId && materialId) {
+                let v = agregadoId;
+                if (!agregadoId) {
+                    v = -1;
+                }
+
+                const x = tipoId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0];
+                const y = colorId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0];
+                const z = materialId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0];
+
+                try {
+                    const response = await fetch("{{ url_for('check_product_status') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            tipo_id: x,
+                            color_id: y,
+                            material_id: z,
+                            agregado_id: v
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (!data.is_active) {
+                        alert(`Producto no disponible para ventas, seleccione otra opción por favor`);
+                    }
+                    return data.is_active;
+                } catch (error) {
+                    console.error('Error:', error);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        async function submitVentasForm() {
+            const isActive = await checkProductStatus(0);
+            if (!isActive) {
+                return; // Si el producto no está activo, no continuar
+            }
+
+            const form = document.getElementById('ventas-form');
+            const formData = new FormData(form);
+
+            fetch("{{ url_for('registro') }}", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'error') {
+                        alert(data.message);
+                    } else {
+                        alert(data.message);
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
 
         const agregadosPorTipo = JSON.parse('{{ agregados_por_tipo | tojson | safe }}');
         const tipos = JSON.parse('{{ tipos | tojson | safe }}');
