@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-08-2024 a las 01:38:51
+-- Tiempo de generación: 06-08-2024 a las 03:52:07
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.0.28
 
@@ -298,7 +298,7 @@ INSERT INTO `producto_combinaciones` (`id`, `tipo_id`, `color_id`, `material_id`
 (2, 69, 6, 3, 46, 10, '250', 0),
 (3, 69, 6, 3, 47, 10, '250', 1),
 (4, 69, 6, 3, 48, 10, '250', 1),
-(5, 69, 6, 3, -1, 10, '250', 1),
+(5, 69, 6, 3, -1, 10, '250.0', 1),
 (6, 69, 6, 4, 45, 10, '250', 1),
 (7, 69, 6, 4, 46, 10, '250', 1),
 (8, 69, 6, 4, 47, 10, '250', 1),
@@ -2996,7 +2996,7 @@ CREATE TABLE `ventas` (
 -- Disparadores `ventas`
 --
 DELIMITER $$
-CREATE TRIGGER `after_insert_venta` AFTER INSERT ON `ventas` FOR EACH ROW BEGIN
+CREATE TRIGGER `reducir_stock_venta` AFTER INSERT ON `ventas` FOR EACH ROW BEGIN
     DECLARE v_tipo_id INT;
     DECLARE v_color_id INT;
     DECLARE v_material_id INT;
@@ -3007,10 +3007,16 @@ CREATE TRIGGER `after_insert_venta` AFTER INSERT ON `ventas` FOR EACH ROW BEGIN
     SELECT id INTO v_tipo_id FROM tipos WHERE nombre = NEW.tipo LIMIT 1;
     SELECT id INTO v_color_id FROM colores WHERE nombre = NEW.color LIMIT 1;
     SELECT id INTO v_material_id FROM materiales WHERE nombre = NEW.material LIMIT 1;
-    SELECT id INTO v_agregado_id FROM agregados WHERE nombre = NEW.agregado LIMIT 1;
+
+    -- Manejar caso cuando agregado es NULL
+    IF NEW.agregado IS NULL OR NEW.agregado = '' THEN
+        SET v_agregado_id = -1;
+    ELSE
+        SELECT id INTO v_agregado_id FROM agregados WHERE nombre = NEW.agregado LIMIT 1;
+    END IF;
 
     -- Verificar que los IDs sean válidos
-    IF v_tipo_id IS NULL OR v_color_id IS NULL OR v_material_id IS NULL OR v_agregado_id IS NULL THEN
+    IF v_tipo_id IS NULL OR v_color_id IS NULL OR v_material_id IS NULL OR (NEW.agregado IS NOT NULL AND v_agregado_id IS NULL) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Uno o más IDs no encontrados para los nombres proporcionados';
     ELSE
         -- Obtener el stock actual del producto
