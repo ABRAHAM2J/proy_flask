@@ -397,7 +397,6 @@
                     if (data.status === 'error') {
                         alert(data.message);
                     } else {
-                        alert(data.message);
                         location.reload();
                     }
                 })
@@ -441,6 +440,8 @@
                 if (!agregadoId) {
                     v = -1
                 }
+
+                console.log(v)
 
                 const x = tipoId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]
                 const y = colorId.replace(/\s/g, '').split(/['"]/)[2].split(":")[1].split(",")[0]

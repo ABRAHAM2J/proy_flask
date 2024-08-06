@@ -138,6 +138,8 @@ def login():
     if 'id' in session:
         return redirect(url_for('dashboard'))
     
+    error_message = None
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -167,13 +169,11 @@ def login():
                 elif user['rol'] == 'encargado' or user['rol'] == 'empleado':
                     return redirect(url_for('registro'))
             else:
-                flash('Datos personales no encontrados.', 'danger')
-                return render_template('login.html')
+                error_message = 'Datos personales no encontrados.'
         else:
-            flash('Nombre de usuario o contraseña incorrectos.', 'danger')
-            return render_template('login.html')
+            error_message = 'Nombre de usuario o contraseña incorrectos.'
 
-    return render_template('login.html')
+    return render_template('login.html', error_message=error_message)
 
 
 @app.route('/logout')
@@ -211,12 +211,12 @@ def registro():
         color = color.split("'")[5]
         material = material.split("'")[5]
 
-        if not (tipo and color and material and agregado_id and cantidad and precioU and fecha):
+        if not (tipo and color and material and cantidad and precioU and fecha):
             return jsonify({'status': 'error', 'message': 'Todos los campos son obligatorios.'}), 400
 
         # Obtener el nombre del agregado a partir de su id
         agregado_nombre = get_agregado_nombre(agregado_id)
-        
+            
         cantidad = int(cantidad)
         precioU = float(precioU)
         precioT = cantidad * precioU
@@ -250,7 +250,7 @@ def registro():
     filename = get_next_filename()
     ventas_df.to_csv(filename, index=False)
 
-    return jsonify({'status': 'success', 'message': 'Se han registrado las ventas.'})
+    return jsonify({'status': 'success', 'message': 'Se han registrado la venta.'})
 
 def get_agregado_nombre(agregado_id):
     query = "SELECT nombre FROM agregados WHERE id = %s"

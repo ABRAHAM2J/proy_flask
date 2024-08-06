@@ -13,6 +13,14 @@
         <img src="../static/img/dogs/image.jpeg" alt="Logo" class="logo">
         <h1 class="title">Iniciar Sesión</h1>
         <p class="subtitle">Ingresar sus credenciales</p>
+        
+        {% if error_message %}
+        <div class="alert alert-danger" style="background-color: yellow; color: blue;">
+            {{ error_message }}
+        </div>
+        {% endif %}
+        <br>
+
         <form action="{{ url_for('login') }}" method="post">
             <div class="input-group">
                 <label for="username" class="icon-label"><i class="fas fa-user"></i></label>
@@ -29,6 +37,7 @@
         </form>
     </div>
 </div>
+
 <script>
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
